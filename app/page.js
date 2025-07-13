@@ -283,14 +283,16 @@ export default function App() {
             Centralized platform for study materials, previous year papers, and academic assistance
           </p>
           <div className="flex justify-center space-x-4">
-            <Dialog open={showUploadModal} onOpenChange={setShowUploadModal}>
-              <DialogTrigger asChild>
-                <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
-                  <Upload className="h-5 w-5 mr-2" />
-                  Upload Resource
-                </Button>
-              </DialogTrigger>
-            </Dialog>
+            {user && user.role === 'admin' && (
+              <Dialog open={showUploadModal} onOpenChange={setShowUploadModal}>
+                <DialogTrigger asChild>
+                  <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
+                    <Upload className="h-5 w-5 mr-2" />
+                    Upload Resource
+                  </Button>
+                </DialogTrigger>
+              </Dialog>
+            )}
             <Button variant="outline" size="lg">
               <BookOpen className="h-5 w-5 mr-2" />
               Browse Resources
