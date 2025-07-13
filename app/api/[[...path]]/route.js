@@ -190,6 +190,41 @@ async function handleRoute(request, { params }) {
     }
 
     if (route === '/resources' && method === 'POST') {
+      // Check authentication
+      const authHeader = request.headers.get('Authorization')
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return handleCORS(NextResponse.json(
+          { error: "Authentication required" }, 
+          { status: 401 }
+        ))
+      }
+
+      const token = authHeader.substring(7)
+      const decoded = verifyToken(token)
+      
+      if (!decoded) {
+        return handleCORS(NextResponse.json(
+          { error: "Invalid token" }, 
+          { status: 401 }
+        ))
+      }
+
+      const user = await db.collection('users').findOne({ id: decoded.userId })
+      if (!user) {
+        return handleCORS(NextResponse.json(
+          { error: "User not found" }, 
+          { status: 404 }
+        ))
+      }
+
+      // Check if user is admin
+      if (user.role !== 'admin') {
+        return handleCORS(NextResponse.json(
+          { error: "Only administrators can upload resources" }, 
+          { status: 403 }
+        ))
+      }
+
       const resourceData = await request.json()
       
       if (!resourceData.title || !resourceData.department || !resourceData.year || !resourceData.type) {
@@ -202,6 +237,8 @@ async function handleRoute(request, { params }) {
       const resource = {
         id: uuidv4(),
         ...resourceData,
+        uploadedBy: user.id,
+        uploadedByName: user.name,
         createdAt: new Date().toISOString()
       }
 
