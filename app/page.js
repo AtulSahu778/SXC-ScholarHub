@@ -104,12 +104,13 @@ export default function App() {
     const name = formData.get('name')
     const department = formData.get('department')
     const year = formData.get('year')
+    const role = formData.get('role')
 
     try {
       const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, name, department, year })
+        body: JSON.stringify({ email, password, name, department, year, role })
       })
 
       const data = await response.json()
