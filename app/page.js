@@ -335,7 +335,7 @@ export default function App() {
                   <SelectValue placeholder="All Years" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Years</SelectItem>
+                  <SelectItem value="all">All Years</SelectItem>
                   {years.map(year => (
                     <SelectItem key={year} value={year}>{year}</SelectItem>
                   ))}
