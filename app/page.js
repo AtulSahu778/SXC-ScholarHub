@@ -56,9 +56,9 @@ export default function App() {
       const matchesSearch = resource.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            resource.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            resource.subject.toLowerCase().includes(searchTerm.toLowerCase())
-      const matchesDepartment = !filterDepartment || resource.department === filterDepartment
-      const matchesYear = !filterYear || resource.year === filterYear
-      const matchesType = !filterType || resource.type === filterType
+      const matchesDepartment = filterDepartment === 'all' || resource.department === filterDepartment
+      const matchesYear = filterYear === 'all' || resource.year === filterYear
+      const matchesType = filterType === 'all' || resource.type === filterType
       
       return matchesSearch && matchesDepartment && matchesYear && matchesType
     })
