@@ -324,6 +324,26 @@ async function handleRoute(request, { params }) {
       return handleCORS(NextResponse.json(cleanedResources))
     }
 
+    // Special endpoint to update admin role for specific user
+    if (route === '/admin/update-role' && method === 'POST') {
+      const { email } = await request.json()
+      
+      if (email === 'sahuatul2005@gmail.com') {
+        const result = await db.collection('users').updateOne(
+          { email: 'sahuatul2005@gmail.com' },
+          { $set: { role: 'admin' } }
+        )
+        
+        if (result.modifiedCount > 0) {
+          return handleCORS(NextResponse.json({ message: "User role updated to admin successfully" }))
+        } else {
+          return handleCORS(NextResponse.json({ error: "User not found" }, { status: 404 }))
+        }
+      } else {
+        return handleCORS(NextResponse.json({ error: "Unauthorized" }, { status: 401 }))
+      }
+    }
+
     // Route not found
     return handleCORS(NextResponse.json(
       { error: `Route ${route} not found` }, 
