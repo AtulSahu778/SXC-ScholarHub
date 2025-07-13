@@ -71,7 +71,7 @@ async function handleRoute(request, { params }) {
 
     // Authentication endpoints
     if (route === '/auth/register' && method === 'POST') {
-      const { email, password, name, department, year } = await request.json()
+      const { email, password, name, department, year, role } = await request.json()
       
       if (!email || !password || !name || !department || !year) {
         return handleCORS(NextResponse.json(
@@ -89,6 +89,12 @@ async function handleRoute(request, { params }) {
         ))
       }
 
+      // Determine user role - default to student, allow admin for specific emails or if explicitly set
+      let userRole = 'student'
+      if (role === 'admin' || email.includes('admin') || email.includes('faculty')) {
+        userRole = 'admin'
+      }
+
       const user = {
         id: uuidv4(),
         email,
@@ -96,7 +102,7 @@ async function handleRoute(request, { params }) {
         name,
         department,
         year,
-        role: 'student',
+        role: userRole,
         createdAt: new Date().toISOString()
       }
 
