@@ -71,7 +71,7 @@ async function handleRoute(request, { params }) {
 
     // Authentication endpoints
     if (route === '/auth/register' && method === 'POST') {
-      const { email, password, name, department, year, role } = await request.json()
+      const { email, password, name, department, year } = await request.json()
       
       if (!email || !password || !name || !department || !year) {
         return handleCORS(NextResponse.json(
@@ -89,7 +89,7 @@ async function handleRoute(request, { params }) {
         ))
       }
 
-      // Determine user role - only specific admin email gets admin role
+      // Determine user role - only your specific email gets admin role
       let userRole = 'student'
       if (email === 'sahuatul2005@gmail.com') {
         userRole = 'admin'
