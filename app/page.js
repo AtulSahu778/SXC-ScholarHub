@@ -135,6 +135,11 @@ export default function App() {
       return
     }
 
+    if (user.role !== 'admin') {
+      setAlert({ type: 'error', message: 'Only administrators can upload resources' })
+      return
+    }
+
     setLoading(true)
     const formData = new FormData(e.target)
     const file = formData.get('file')
@@ -159,13 +164,16 @@ export default function App() {
           fileContent: e.target.result,
           fileName: file.name,
           fileType: file.type,
-          uploadedBy: user.id,
           uploadedAt: new Date().toISOString()
         }
 
+        const token = localStorage.getItem('token')
         const response = await fetch('/api/resources', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
           body: JSON.stringify(resourceData)
         })
 
