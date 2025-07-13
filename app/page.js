@@ -349,7 +349,7 @@ export default function App() {
                   <SelectValue placeholder="All Types" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Types</SelectItem>
+                  <SelectItem value="all">All Types</SelectItem>
                   {resourceTypes.map(type => (
                     <SelectItem key={type} value={type}>{type}</SelectItem>
                   ))}
