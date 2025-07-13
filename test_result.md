@@ -392,11 +392,14 @@ metadata:
 
 test_plan:
   current_focus:
-    - "All backend API endpoints tested successfully"
+    - "Admin-only resource upload functionality fully tested and working"
+    - "All admin authorization and role-based access controls verified"
   stuck_tasks: []
   test_all: true
   test_priority: "high_first"
 
 agent_communication:
   - agent: "testing"
-    message: "Comprehensive backend API testing completed successfully. All 17 backend tasks tested and working perfectly. 20 test cases executed with 100% pass rate. The SXC ScholarHub backend API is fully functional with proper authentication, resource management, search/filter capabilities, database operations, and API responses. No critical issues found. Ready for production use."
+    message: "Comprehensive backend API testing completed successfully. All 17 original backend tasks tested and working perfectly. 20 test cases executed with 100% pass rate. The SXC ScholarHub backend API is fully functional with proper authentication, resource management, search/filter capabilities, database operations, and API responses. No critical issues found. Ready for production use."
+  - agent: "testing"
+    message: "ADMIN-ONLY RESOURCE UPLOAD TESTING COMPLETED: Successfully tested all admin-only functionality as requested. All 8 admin-specific test scenarios passed: ✅ Admin Registration (role assignment), ✅ Student Registration (default role), ✅ Faculty Email Auto-Admin (email-based role assignment), ✅ Admin Resource Upload (with attribution), ✅ Student Upload Blocked (403 Forbidden), ✅ No Token Blocked (401 Unauthorized), ✅ Invalid Token Blocked (401 Unauthorized), ✅ Student Can View Resources (read access maintained). The admin-only resource upload restriction is working perfectly with proper error handling and role-based access control."
