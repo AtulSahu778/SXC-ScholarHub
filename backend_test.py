@@ -563,6 +563,186 @@ class ScholarHubAPITester:
             self.log_result("OPTIONS Request", False, f"Exception: {str(e)}")
         return False
 
+    def test_admin_only_resource_upload(self):
+        """
+        Comprehensive test suite for admin-only resource upload functionality
+        """
+        print("\n🔐 ADMIN-ONLY RESOURCE UPLOAD TESTING")
+        print("-" * 60)
+        
+        # Test data
+        admin_user_data = {
+            "email": "admin@sxc.edu",
+            "password": "AdminPass123",
+            "name": "Dr. Sarah Johnson",
+            "department": "Computer Science",
+            "year": "Faculty",
+            "role": "admin"
+        }
+        
+        student_user_data = {
+            "email": "student@sxc.edu", 
+            "password": "StudentPass123",
+            "name": "John Smith",
+            "department": "Computer Science",
+            "year": "2024"
+        }
+        
+        faculty_email_user = {
+            "email": "faculty.jones@sxc.edu",
+            "password": "FacultyPass123", 
+            "name": "Prof. Michael Jones",
+            "department": "Mathematics",
+            "year": "Faculty"
+        }
+        
+        resource_data = {
+            "title": "Advanced Data Structures Notes",
+            "description": "Comprehensive notes on advanced data structures",
+            "subject": "Data Structures",
+            "department": "Computer Science", 
+            "year": "2024",
+            "type": "notes",
+            "fileUrl": "https://example.com/advanced-ds-notes.pdf"
+        }
+        
+        admin_token = None
+        student_token = None
+        faculty_token = None
+        
+        # 1. Test Admin Registration
+        try:
+            response = requests.post(f"{self.base_url}/auth/register", json=admin_user_data)
+            if response.status_code == 200:
+                admin_data = response.json()
+                admin_token = admin_data.get('token')
+                user_role = admin_data.get('user', {}).get('role')
+                
+                if user_role == 'admin':
+                    self.log_result("Admin Registration", True, f"Admin user registered with role: {user_role}")
+                else:
+                    self.log_result("Admin Registration", False, f"Expected admin role, got: {user_role}")
+            else:
+                self.log_result("Admin Registration", False, f"Registration failed: {response.status_code}")
+        except Exception as e:
+            self.log_result("Admin Registration", False, f"Exception: {str(e)}")
+        
+        # 2. Test Student Registration
+        try:
+            response = requests.post(f"{self.base_url}/auth/register", json=student_user_data)
+            if response.status_code == 200:
+                student_data = response.json()
+                student_token = student_data.get('token')
+                user_role = student_data.get('user', {}).get('role')
+                
+                if user_role == 'student':
+                    self.log_result("Student Registration", True, f"Student user registered with role: {user_role}")
+                else:
+                    self.log_result("Student Registration", False, f"Expected student role, got: {user_role}")
+            else:
+                self.log_result("Student Registration", False, f"Registration failed: {response.status_code}")
+        except Exception as e:
+            self.log_result("Student Registration", False, f"Exception: {str(e)}")
+        
+        # 3. Test Faculty Email Auto-Admin
+        try:
+            response = requests.post(f"{self.base_url}/auth/register", json=faculty_email_user)
+            if response.status_code == 200:
+                faculty_data = response.json()
+                faculty_token = faculty_data.get('token')
+                user_role = faculty_data.get('user', {}).get('role')
+                
+                if user_role == 'admin':
+                    self.log_result("Faculty Email Auto-Admin", True, f"Faculty email auto-assigned admin role")
+                else:
+                    self.log_result("Faculty Email Auto-Admin", False, f"Expected admin role, got: {user_role}")
+            else:
+                self.log_result("Faculty Email Auto-Admin", False, f"Registration failed: {response.status_code}")
+        except Exception as e:
+            self.log_result("Faculty Email Auto-Admin", False, f"Exception: {str(e)}")
+        
+        # 4. Test Admin Resource Upload
+        if admin_token:
+            try:
+                headers = {"Authorization": f"Bearer {admin_token}"}
+                response = requests.post(f"{self.base_url}/resources", json=resource_data, headers=headers)
+                
+                if response.status_code == 200:
+                    uploaded_resource = response.json()
+                    uploaded_by = uploaded_resource.get('uploadedBy')
+                    uploaded_by_name = uploaded_resource.get('uploadedByName')
+                    
+                    if uploaded_by and uploaded_by_name:
+                        self.log_result("Admin Resource Upload", True, f"Admin successfully uploaded resource with attribution")
+                    else:
+                        self.log_result("Admin Resource Upload", False, "Resource uploaded but missing attribution")
+                else:
+                    self.log_result("Admin Resource Upload", False, f"Upload failed: {response.status_code}")
+            except Exception as e:
+                self.log_result("Admin Resource Upload", False, f"Exception: {str(e)}")
+        
+        # 5. Test Student Resource Upload Blocked
+        if student_token:
+            try:
+                headers = {"Authorization": f"Bearer {student_token}"}
+                response = requests.post(f"{self.base_url}/resources", json=resource_data, headers=headers)
+                
+                if response.status_code == 403:
+                    error_message = response.json().get('error', '')
+                    if 'administrator' in error_message.lower():
+                        self.log_result("Student Upload Blocked", True, "Student upload correctly blocked with 403")
+                    else:
+                        self.log_result("Student Upload Blocked", False, f"Wrong error message: {error_message}")
+                else:
+                    self.log_result("Student Upload Blocked", False, f"Expected 403, got: {response.status_code}")
+            except Exception as e:
+                self.log_result("Student Upload Blocked", False, f"Exception: {str(e)}")
+        
+        # 6. Test No Token Blocked
+        try:
+            response = requests.post(f"{self.base_url}/resources", json=resource_data)
+            
+            if response.status_code == 401:
+                error_message = response.json().get('error', '')
+                if 'authentication' in error_message.lower():
+                    self.log_result("No Token Blocked", True, "No token request correctly blocked with 401")
+                else:
+                    self.log_result("No Token Blocked", False, f"Wrong error message: {error_message}")
+            else:
+                self.log_result("No Token Blocked", False, f"Expected 401, got: {response.status_code}")
+        except Exception as e:
+            self.log_result("No Token Blocked", False, f"Exception: {str(e)}")
+        
+        # 7. Test Invalid Token Blocked
+        try:
+            headers = {"Authorization": "Bearer invalid_token_12345"}
+            response = requests.post(f"{self.base_url}/resources", json=resource_data, headers=headers)
+            
+            if response.status_code == 401:
+                error_message = response.json().get('error', '')
+                if 'invalid' in error_message.lower():
+                    self.log_result("Invalid Token Blocked", True, "Invalid token correctly blocked with 401")
+                else:
+                    self.log_result("Invalid Token Blocked", False, f"Wrong error message: {error_message}")
+            else:
+                self.log_result("Invalid Token Blocked", False, f"Expected 401, got: {response.status_code}")
+        except Exception as e:
+            self.log_result("Invalid Token Blocked", False, f"Exception: {str(e)}")
+        
+        # 8. Test Student Can View Resources
+        if student_token:
+            try:
+                headers = {"Authorization": f"Bearer {student_token}"}
+                response = requests.get(f"{self.base_url}/resources", headers=headers)
+                
+                if response.status_code == 200:
+                    resources = response.json()
+                    self.log_result("Student Can View Resources", True, f"Student can view {len(resources)} resources")
+                else:
+                    self.log_result("Student Can View Resources", False, f"View failed: {response.status_code}")
+            except Exception as e:
+                self.log_result("Student Can View Resources", False, f"Exception: {str(e)}")
+
     def run_all_tests(self):
         """Run all test cases"""
         print("🚀 Starting SXC ScholarHub Backend API Tests")
@@ -589,7 +769,8 @@ class ScholarHubAPITester:
             self.test_search_filters,
             self.test_search_combined,
             self.test_cors_headers,
-            self.test_options_request
+            self.test_options_request,
+            self.test_admin_only_resource_upload  # New admin-only tests
         ]
         
         for test_method in test_methods:
