@@ -541,18 +541,6 @@ export default function App() {
                   <Input id="password" name="password" type="password" required />
                 </div>
                 <div>
-                  <Label htmlFor="role">Role</Label>
-                  <Select name="role" required>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select Role" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="student">Student</SelectItem>
-                      <SelectItem value="admin">Administrator</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
                   <Label htmlFor="department">Department</Label>
                   <Select name="department" required>
                     <SelectTrigger>
