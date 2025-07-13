@@ -163,7 +163,9 @@ async function handleRoute(request, { params }) {
         ))
       }
 
-      const user = await db.collection('users').findOne({ id: decoded.userId })
+      // Ensure we have db connection
+      const database = await connectToMongo()
+      const user = await database.collection('users').findOne({ id: decoded.userId })
       if (!user) {
         return handleCORS(NextResponse.json(
           { error: "User not found" }, 
