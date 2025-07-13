@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Test the SXC ScholarHub backend API endpoints comprehensively. Focus on authentication system, resources management, search and filter functionality, database operations, and API response testing."
+user_problem_statement: "Test the admin-only resource upload functionality in SXC ScholarHub. Focus on admin registration, admin authorization, resource upload authorization, admin resource management, and student access testing."
 
 backend:
   - task: "Authentication System - User Registration"
@@ -320,6 +320,66 @@ backend:
       - working: true
         agent: "testing"
         comment: "✅ Get users endpoint working correctly. Returns list of all users with password fields properly excluded for security, and cleans MongoDB _id fields."
+
+  - task: "Admin Registration - Role Assignment"
+    implemented: true
+    working: true
+    file: "app/api/[[...path]]/route.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✅ Admin registration working perfectly. Users with role='admin' or emails containing 'admin'/'faculty' are correctly assigned admin role. Student users default to 'student' role."
+
+  - task: "Admin Authorization - Resource Upload Restriction"
+    implemented: true
+    working: true
+    file: "app/api/[[...path]]/route.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✅ Admin-only resource upload working correctly. Only users with 'admin' role can upload resources. Student users receive 403 Forbidden error with proper message 'Only administrators can upload resources'."
+
+  - task: "Resource Upload Authorization - Token Validation"
+    implemented: true
+    working: true
+    file: "app/api/[[...path]]/route.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✅ Resource upload authorization working perfectly. Requires valid Bearer token (401 for missing/invalid tokens), validates user exists, and checks admin role before allowing uploads."
+
+  - task: "Admin Resource Management - Resource Attribution"
+    implemented: true
+    working: true
+    file: "app/api/[[...path]]/route.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✅ Admin resource attribution working correctly. Uploaded resources include uploadedBy (user ID) and uploadedByName fields, properly tracking which admin uploaded each resource."
+
+  - task: "Student Access - View Resources"
+    implemented: true
+    working: true
+    file: "app/api/[[...path]]/route.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✅ Student resource access working perfectly. Students can view and access all resources uploaded by admins. Read access is not restricted, only upload/create access requires admin role."
 
 frontend:
   # Frontend testing not performed as per instructions
