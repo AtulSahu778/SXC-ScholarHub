@@ -2,6 +2,7 @@
 """
 Comprehensive Backend API Testing for SXC ScholarHub
 Tests all authentication, resources, search, and database operations
+UPDATED: Added Admin-Only Resource Upload Testing
 """
 
 import requests
