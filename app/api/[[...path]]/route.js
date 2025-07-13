@@ -24,6 +24,32 @@ function handleCORS(response) {
   return response
 }
 
+// Simple JWT-like token generation (for demo purposes)
+function generateToken(userId) {
+  return Buffer.from(JSON.stringify({ userId, exp: Date.now() + 24 * 60 * 60 * 1000 })).toString('base64')
+}
+
+function verifyToken(token) {
+  try {
+    const decoded = JSON.parse(Buffer.from(token, 'base64').toString())
+    if (decoded.exp > Date.now()) {
+      return decoded
+    }
+  } catch (error) {
+    return null
+  }
+  return null
+}
+
+// Simple password hashing (for demo purposes - use bcrypt in production)
+function hashPassword(password) {
+  return Buffer.from(password).toString('base64')
+}
+
+function comparePassword(password, hash) {
+  return Buffer.from(password).toString('base64') === hash
+}
+
 // OPTIONS handler for CORS
 export async function OPTIONS() {
   return handleCORS(new NextResponse(null, { status: 200 }))
@@ -38,47 +64,219 @@ async function handleRoute(request, { params }) {
   try {
     const db = await connectToMongo()
 
-    // Root endpoint - GET /api/root (since /api/ is not accessible with catch-all)
-    if (route === '/root' && method === 'GET') {
-      return handleCORS(NextResponse.json({ message: "Hello World" }))
-    }
-    // Root endpoint - GET /api/root (since /api/ is not accessible with catch-all)
+    // Root endpoint - GET /api/
     if (route === '/' && method === 'GET') {
-      return handleCORS(NextResponse.json({ message: "Hello World" }))
+      return handleCORS(NextResponse.json({ message: "SXC ScholarHub API is running" }))
     }
 
-    // Status endpoints - POST /api/status
-    if (route === '/status' && method === 'POST') {
-      const body = await request.json()
+    // Authentication endpoints
+    if (route === '/auth/register' && method === 'POST') {
+      const { email, password, name, department, year } = await request.json()
       
-      if (!body.client_name) {
+      if (!email || !password || !name || !department || !year) {
         return handleCORS(NextResponse.json(
-          { error: "client_name is required" }, 
+          { error: "All fields are required" }, 
           { status: 400 }
         ))
       }
 
-      const statusObj = {
-        id: uuidv4(),
-        client_name: body.client_name,
-        timestamp: new Date()
+      // Check if user already exists
+      const existingUser = await db.collection('users').findOne({ email })
+      if (existingUser) {
+        return handleCORS(NextResponse.json(
+          { error: "User already exists" }, 
+          { status: 400 }
+        ))
       }
 
-      await db.collection('status_checks').insertOne(statusObj)
-      return handleCORS(NextResponse.json(statusObj))
+      const user = {
+        id: uuidv4(),
+        email,
+        password: hashPassword(password),
+        name,
+        department,
+        year,
+        role: 'student',
+        createdAt: new Date().toISOString()
+      }
+
+      await db.collection('users').insertOne(user)
+      
+      const token = generateToken(user.id)
+      const { password: _, ...userWithoutPassword } = user
+      
+      return handleCORS(NextResponse.json({ 
+        user: userWithoutPassword, 
+        token 
+      }))
     }
 
-    // Status endpoints - GET /api/status
-    if (route === '/status' && method === 'GET') {
-      const statusChecks = await db.collection('status_checks')
+    if (route === '/auth/login' && method === 'POST') {
+      const { email, password } = await request.json()
+      
+      if (!email || !password) {
+        return handleCORS(NextResponse.json(
+          { error: "Email and password are required" }, 
+          { status: 400 }
+        ))
+      }
+
+      const user = await db.collection('users').findOne({ email })
+      if (!user || !comparePassword(password, user.password)) {
+        return handleCORS(NextResponse.json(
+          { error: "Invalid email or password" }, 
+          { status: 401 }
+        ))
+      }
+
+      const token = generateToken(user.id)
+      const { password: _, ...userWithoutPassword } = user
+      
+      return handleCORS(NextResponse.json({ 
+        user: userWithoutPassword, 
+        token 
+      }))
+    }
+
+    if (route === '/auth/verify' && method === 'GET') {
+      const authHeader = request.headers.get('Authorization')
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return handleCORS(NextResponse.json(
+          { error: "No token provided" }, 
+          { status: 401 }
+        ))
+      }
+
+      const token = authHeader.substring(7)
+      const decoded = verifyToken(token)
+      
+      if (!decoded) {
+        return handleCORS(NextResponse.json(
+          { error: "Invalid token" }, 
+          { status: 401 }
+        ))
+      }
+
+      const user = await db.collection('users').findOne({ id: decoded.userId })
+      if (!user) {
+        return handleCORS(NextResponse.json(
+          { error: "User not found" }, 
+          { status: 404 }
+        ))
+      }
+
+      const { password: _, ...userWithoutPassword } = user
+      return handleCORS(NextResponse.json({ user: userWithoutPassword }))
+    }
+
+    // Resources endpoints
+    if (route === '/resources' && method === 'GET') {
+      const resources = await db.collection('resources')
         .find({})
+        .sort({ uploadedAt: -1 })
         .limit(1000)
         .toArray()
 
       // Remove MongoDB's _id field from response
-      const cleanedStatusChecks = statusChecks.map(({ _id, ...rest }) => rest)
+      const cleanedResources = resources.map(({ _id, ...rest }) => rest)
       
-      return handleCORS(NextResponse.json(cleanedStatusChecks))
+      return handleCORS(NextResponse.json(cleanedResources))
+    }
+
+    if (route === '/resources' && method === 'POST') {
+      const resourceData = await request.json()
+      
+      if (!resourceData.title || !resourceData.department || !resourceData.year || !resourceData.type) {
+        return handleCORS(NextResponse.json(
+          { error: "Required fields are missing" }, 
+          { status: 400 }
+        ))
+      }
+
+      const resource = {
+        id: uuidv4(),
+        ...resourceData,
+        createdAt: new Date().toISOString()
+      }
+
+      await db.collection('resources').insertOne(resource)
+      
+      return handleCORS(NextResponse.json(resource))
+    }
+
+    if (route.startsWith('/resources/') && method === 'GET') {
+      const resourceId = route.split('/')[2]
+      const resource = await db.collection('resources').findOne({ id: resourceId })
+      
+      if (!resource) {
+        return handleCORS(NextResponse.json(
+          { error: "Resource not found" }, 
+          { status: 404 }
+        ))
+      }
+
+      const { _id, ...cleanedResource } = resource
+      return handleCORS(NextResponse.json(cleanedResource))
+    }
+
+    if (route.startsWith('/resources/') && method === 'DELETE') {
+      const resourceId = route.split('/')[2]
+      const result = await db.collection('resources').deleteOne({ id: resourceId })
+      
+      if (result.deletedCount === 0) {
+        return handleCORS(NextResponse.json(
+          { error: "Resource not found" }, 
+          { status: 404 }
+        ))
+      }
+
+      return handleCORS(NextResponse.json({ message: "Resource deleted successfully" }))
+    }
+
+    // Users endpoints (for admin)
+    if (route === '/users' && method === 'GET') {
+      const users = await db.collection('users')
+        .find({})
+        .project({ password: 0 }) // Exclude password field
+        .limit(1000)
+        .toArray()
+
+      const cleanedUsers = users.map(({ _id, ...rest }) => rest)
+      
+      return handleCORS(NextResponse.json(cleanedUsers))
+    }
+
+    // Search endpoint
+    if (route === '/search' && method === 'GET') {
+      const url = new URL(request.url)
+      const query = url.searchParams.get('q')
+      const department = url.searchParams.get('department')
+      const year = url.searchParams.get('year')
+      const type = url.searchParams.get('type')
+
+      let searchQuery = {}
+      
+      if (query) {
+        searchQuery.$or = [
+          { title: { $regex: query, $options: 'i' } },
+          { description: { $regex: query, $options: 'i' } },
+          { subject: { $regex: query, $options: 'i' } }
+        ]
+      }
+      
+      if (department) searchQuery.department = department
+      if (year) searchQuery.year = year
+      if (type) searchQuery.type = type
+
+      const resources = await db.collection('resources')
+        .find(searchQuery)
+        .sort({ uploadedAt: -1 })
+        .limit(100)
+        .toArray()
+
+      const cleanedResources = resources.map(({ _id, ...rest }) => rest)
+      
+      return handleCORS(NextResponse.json(cleanedResources))
     }
 
     // Route not found
