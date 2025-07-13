@@ -89,9 +89,9 @@ async function handleRoute(request, { params }) {
         ))
       }
 
-      // Determine user role - default to student, allow admin for specific emails or if explicitly set
+      // Determine user role - only specific admin email gets admin role
       let userRole = 'student'
-      if (role === 'admin' || email.includes('admin') || email.includes('faculty')) {
+      if (email === 'sahuatul2005@gmail.com') {
         userRole = 'admin'
       }
 
