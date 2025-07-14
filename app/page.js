@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -32,6 +32,8 @@ export default function App() {
   const departments = ['Computer Science', 'Mathematics', 'Physics', 'Chemistry', 'Biology', 'English', 'History', 'Economics']
   const years = ['First Year', 'Second Year', 'Third Year']
   const resourceTypes = ['Notes', 'Previous Year Papers', 'Syllabus', 'Assignments', 'Lab Manual']
+
+  const resourcesRef = useRef(null)
 
   useEffect(() => {
     fetchResources()
@@ -254,6 +256,12 @@ export default function App() {
     setAlert({ type: 'success', message: 'Logged out successfully' })
   }
 
+  const handleBrowseResources = () => {
+    if (resourcesRef.current) {
+      resourcesRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  }
+
   // Check for existing token on component mount
   useEffect(() => {
     const token = localStorage.getItem('token')
@@ -340,7 +348,7 @@ export default function App() {
                 </DialogTrigger>
               </Dialog>
             )}
-            <Button variant="outline" size="lg" className="w-full sm:w-auto">
+            <Button variant="outline" size="lg" className="w-full sm:w-auto" onClick={handleBrowseResources}>
               <BookOpen className="h-5 w-5 mr-2" />
               Browse Resources
             </Button>
@@ -409,7 +417,7 @@ export default function App() {
         </div>
 
         {/* Resources Grid */}
-        <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div ref={resourcesRef} className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
           {filteredResources.map((resource) => (
             <Card key={resource.id} className="hover:shadow-lg transition-shadow">
               <CardHeader>
