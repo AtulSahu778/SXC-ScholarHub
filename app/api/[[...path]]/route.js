@@ -8,11 +8,81 @@ let db
 
 async function connectToMongo() {
   if (!client) {
-    client = new MongoClient(process.env.MONGO_URL)
-    await client.connect()
-    db = client.db(process.env.DB_NAME)
+    try {
+      console.log('Connecting to MongoDB...')
+      
+      // Check for environment variable (support both common names)
+      const mongoUrl = process.env.MONGO_URL || process.env.MONGODB_URI
+      
+      if (!mongoUrl) {
+        throw new Error('MONGO_URL or MONGODB_URI environment variable is not set')
+      }
+      
+      console.log('Using MongoDB URL:', mongoUrl.replace(/\/\/[^:]+:[^@]+@/, '//***:***@'))
+      
+      // Create client with proper options (removed deprecated options)
+      client = new MongoClient(mongoUrl, {
+        serverSelectionTimeoutMS: 30000, // 30 second timeout
+        connectTimeoutMS: 30000,
+        socketTimeoutMS: 30000,
+        maxPoolSize: 10,
+        retryWrites: true,
+      })
+      
+      // Connect with timeout
+      await client.connect()
+      console.log('MongoDB client connected successfully')
+      
+      // Use the database name from env or default to 'cluster0'
+      const dbName = process.env.MONGO_DATABASE || process.env.DB_NAME || 'cluster0'
+      db = client.db(dbName)
+      
+      console.log('Successfully connected to database:', dbName)
+      
+      // Test the connection
+      await db.admin().ping()
+      console.log('Database ping successful')
+      
+    } catch (error) {
+      console.error('MongoDB connection error:', error)
+      
+      // Clean up on error
+      if (client) {
+        try {
+          await client.close()
+        } catch (closeError) {
+          console.error('Error closing client:', closeError)
+        }
+      }
+      
+      client = null
+      db = null
+      throw new Error(`Database connection failed: ${error.message}`)
+    }
   }
+  
+  if (!db) {
+    throw new Error('Database connection not established')
+  }
+  
   return db
+}
+
+// Add connection health check
+async function checkConnection() {
+  try {
+    if (db) {
+      await db.admin().ping()
+      return true
+    }
+    return false
+  } catch (error) {
+    console.error('Connection health check failed:', error)
+    // Reset connection on health check failure
+    client = null
+    db = null
+    return false
+  }
 }
 
 // Helper function to handle CORS
@@ -36,6 +106,7 @@ function verifyToken(token) {
       return decoded
     }
   } catch (error) {
+    console.error('Token verification error:', error)
     return null
   }
   return null
@@ -62,7 +133,20 @@ async function handleRoute(request, { params }) {
   const method = request.method
 
   try {
-    const db = await connectToMongo()
+    // Check connection health first
+    const isHealthy = await checkConnection()
+    if (!isHealthy) {
+      console.log('Connection unhealthy, reconnecting...')
+      client = null
+      db = null
+    }
+
+    // Ensure database connection
+    const database = await connectToMongo()
+    
+    if (!database) {
+      throw new Error('Database connection failed')
+    }
 
     // Root endpoint - GET /api/
     if (route === '/' && method === 'GET') {
@@ -81,7 +165,7 @@ async function handleRoute(request, { params }) {
       }
 
       // Check if user already exists
-      const existingUser = await db.collection('users').findOne({ email })
+      const existingUser = await database.collection('users').findOne({ email })
       if (existingUser) {
         return handleCORS(NextResponse.json(
           { error: "User already exists" }, 
@@ -106,7 +190,7 @@ async function handleRoute(request, { params }) {
         createdAt: new Date().toISOString()
       }
 
-      await db.collection('users').insertOne(user)
+      await database.collection('users').insertOne(user)
       
       const token = generateToken(user.id)
       const { password: _, ...userWithoutPassword } = user
@@ -127,7 +211,7 @@ async function handleRoute(request, { params }) {
         ))
       }
 
-      const user = await db.collection('users').findOne({ email })
+      const user = await database.collection('users').findOne({ email })
       if (!user || !comparePassword(password, user.password)) {
         return handleCORS(NextResponse.json(
           { error: "Invalid email or password" }, 
@@ -163,8 +247,6 @@ async function handleRoute(request, { params }) {
         ))
       }
 
-      // Ensure we have db connection
-      const database = await connectToMongo()
       const user = await database.collection('users').findOne({ id: decoded.userId })
       if (!user) {
         return handleCORS(NextResponse.json(
@@ -179,7 +261,7 @@ async function handleRoute(request, { params }) {
 
     // Resources endpoints
     if (route === '/resources' && method === 'GET') {
-      const resources = await db.collection('resources')
+      const resources = await database.collection('resources')
         .find({})
         .sort({ uploadedAt: -1 })
         .limit(1000)
@@ -192,6 +274,141 @@ async function handleRoute(request, { params }) {
     }
 
     if (route === '/resources' && method === 'POST') {
+      // Check authentication
+      const authHeader = request.headers.get('Authorization');
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return handleCORS(NextResponse.json(
+          { error: "Authentication required" }, 
+          { status: 401 }
+        ));
+      }
+
+      const token = authHeader.substring(7);
+      const decoded = verifyToken(token);
+      if (!decoded) {
+        return handleCORS(NextResponse.json(
+          { error: "Invalid token" }, 
+          { status: 401 }
+        ));
+      }
+
+      const user = await database.collection('users').findOne({ id: decoded.userId });
+      if (!user) {
+        return handleCORS(NextResponse.json(
+          { error: "User not found" }, 
+          { status: 404 }
+        ));
+      }
+      if (user.role !== 'admin') {
+        return handleCORS(NextResponse.json(
+          { error: "Only administrators can upload resources" }, 
+          { status: 403 }
+        ));
+      }
+
+      // Validate input
+      let resourceData;
+      try {
+        resourceData = await request.json();
+      } catch (err) {
+        return handleCORS(NextResponse.json(
+          { error: "Invalid JSON body", details: err.message }, 
+          { status: 400 }
+        ));
+      }
+      const { title, department, year, type } = resourceData;
+      if (!title || !department || !year || !type) {
+        return handleCORS(NextResponse.json(
+          { error: "Required fields are missing" }, 
+          { status: 400 }
+        ));
+      }
+
+      // Prepare resource
+      const resource = {
+        id: uuidv4(),
+        ...resourceData,
+        uploadedBy: user.id,
+        uploadedByName: user.name,
+        uploadedAt: new Date().toISOString(),
+        createdAt: new Date().toISOString()
+      };
+
+      // Insert and respond
+      try {
+        await database.collection('resources').insertOne(resource);
+        // Only return a success message and the resource id
+        return handleCORS(NextResponse.json({
+          message: "Resource uploaded successfully",
+          id: resource.id
+        }));
+      } catch (err) {
+        console.error('Resource upload error:', err);
+        return handleCORS(NextResponse.json(
+          { error: "Failed to upload resource", details: err.message }, 
+          { status: 500 }
+        ));
+      }
+    }
+
+    if (route.startsWith('/resources/') && method === 'GET') {
+      const resourceId = route.split('/')[2]
+      const resource = await database.collection('resources').findOne({ id: resourceId })
+      
+      if (!resource) {
+        return handleCORS(NextResponse.json(
+          { error: "Resource not found" }, 
+          { status: 404 }
+        ))
+      }
+
+      const { _id, ...cleanedResource } = resource
+      return handleCORS(NextResponse.json(cleanedResource))
+    }
+
+    if (route.startsWith('/resources/') && method === 'DELETE') {
+      // Check authentication for deletion
+      const authHeader = request.headers.get('Authorization')
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return handleCORS(NextResponse.json(
+          { error: "Authentication required" }, 
+          { status: 401 }
+        ))
+      }
+
+      const token = authHeader.substring(7)
+      const decoded = verifyToken(token)
+      
+      if (!decoded) {
+        return handleCORS(NextResponse.json(
+          { error: "Invalid token" }, 
+          { status: 401 }
+        ))
+      }
+
+      const user = await database.collection('users').findOne({ id: decoded.userId })
+      if (!user || user.role !== 'admin') {
+        return handleCORS(NextResponse.json(
+          { error: "Only administrators can delete resources" }, 
+          { status: 403 }
+        ))
+      }
+
+      const resourceId = route.split('/')[2]
+      const result = await database.collection('resources').deleteOne({ id: resourceId })
+      
+      if (result.deletedCount === 0) {
+        return handleCORS(NextResponse.json(
+          { error: "Resource not found" }, 
+          { status: 404 }
+        ))
+      }
+
+      return handleCORS(NextResponse.json({ message: "Resource deleted successfully" }))
+    }
+
+    // Users endpoints (for admin)
+    if (route === '/users' && method === 'GET') {
       // Check authentication
       const authHeader = request.headers.get('Authorization')
       if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -211,76 +428,15 @@ async function handleRoute(request, { params }) {
         ))
       }
 
-      const user = await db.collection('users').findOne({ id: decoded.userId })
-      if (!user) {
+      const user = await database.collection('users').findOne({ id: decoded.userId })
+      if (!user || user.role !== 'admin') {
         return handleCORS(NextResponse.json(
-          { error: "User not found" }, 
-          { status: 404 }
-        ))
-      }
-
-      // Check if user is admin
-      if (user.role !== 'admin') {
-        return handleCORS(NextResponse.json(
-          { error: "Only administrators can upload resources" }, 
+          { error: "Only administrators can view users" }, 
           { status: 403 }
         ))
       }
 
-      const resourceData = await request.json()
-      
-      if (!resourceData.title || !resourceData.department || !resourceData.year || !resourceData.type) {
-        return handleCORS(NextResponse.json(
-          { error: "Required fields are missing" }, 
-          { status: 400 }
-        ))
-      }
-
-      const resource = {
-        id: uuidv4(),
-        ...resourceData,
-        uploadedBy: user.id,
-        uploadedByName: user.name,
-        createdAt: new Date().toISOString()
-      }
-
-      await db.collection('resources').insertOne(resource)
-      
-      return handleCORS(NextResponse.json(resource))
-    }
-
-    if (route.startsWith('/resources/') && method === 'GET') {
-      const resourceId = route.split('/')[2]
-      const resource = await db.collection('resources').findOne({ id: resourceId })
-      
-      if (!resource) {
-        return handleCORS(NextResponse.json(
-          { error: "Resource not found" }, 
-          { status: 404 }
-        ))
-      }
-
-      const { _id, ...cleanedResource } = resource
-      return handleCORS(NextResponse.json(cleanedResource))
-    }
-
-    if (route.startsWith('/resources/') && method === 'DELETE') {
-      const resourceId = route.split('/')[2]
-      const result = await db.collection('resources').deleteOne({ id: resourceId })
-      
-      if (result.deletedCount === 0) {
-        return handleCORS(NextResponse.json(
-          { error: "Resource not found" }, 
-          { status: 404 }
-        ))
-      }
-
-      return handleCORS(NextResponse.json({ message: "Resource deleted successfully" }))
-    }
-
-    // Users endpoints (for admin)
-    if (route === '/users' && method === 'GET') {
-      const users = await db.collection('users')
+      const users = await database.collection('users')
         .find({})
         .project({ password: 0 }) // Exclude password field
         .limit(1000)
@@ -313,7 +469,7 @@ async function handleRoute(request, { params }) {
       if (year) searchQuery.year = year
       if (type) searchQuery.type = type
 
-      const resources = await db.collection('resources')
+      const resources = await database.collection('resources')
         .find(searchQuery)
         .sort({ uploadedAt: -1 })
         .limit(100)
@@ -333,7 +489,7 @@ async function handleRoute(request, { params }) {
   } catch (error) {
     console.error('API Error:', error)
     return handleCORS(NextResponse.json(
-      { error: "Internal server error" }, 
+      { error: "Internal server error", details: error.message }, 
       { status: 500 }
     ))
   }
