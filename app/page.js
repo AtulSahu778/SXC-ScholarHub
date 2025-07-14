@@ -11,7 +11,7 @@ import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { BookOpen, Upload, Search, Users, FileText, GraduationCap, Download, Star, Filter, Plus, User, LogOut, Trash2 } from 'lucide-react'
+import { BookOpen, Upload, Search, Users, FileText, GraduationCap, Download, Star, Filter, Plus, User, LogOut, Trash2, Instagram, Twitter, Github } from 'lucide-react'
 
 export default function App() {
   const [user, setUser] = useState(null)
@@ -651,6 +651,24 @@ export default function App() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Footer */}
+      <footer className="w-full border-t bg-white mt-8 py-4">
+        <div className="container mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-gray-500">
+          <div>Built by <span className="font-semibold text-gray-700">Atul Sahu</span></div>
+          <div className="flex gap-4 items-center">
+            <a href="https://instagram.com/ofc_atul" target="_blank" rel="noopener noreferrer" title="Instagram" className="hover:text-blue-600 flex items-center gap-1">
+              <Instagram className="h-4 w-4" /> ofc_atul
+            </a>
+            <a href="https://twitter.com/Ofc-atul" target="_blank" rel="noopener noreferrer" title="Twitter" className="hover:text-blue-600 flex items-center gap-1">
+              <Twitter className="h-4 w-4" /> Ofc-atul
+            </a>
+            <a href="https://github.com/AtulSahu778" target="_blank" rel="noopener noreferrer" title="GitHub" className="hover:text-blue-600 flex items-center gap-1">
+              <Github className="h-4 w-4" /> AtulSahu778
+            </a>
+          </div>
+        </div>
+      </footer>
     </div>
   )
 }
