@@ -1,4 +1,5 @@
 import './globals.css'
+import Head from 'next/head'
 
 export const metadata = {
   title: 'SXC ScholarHub',
@@ -7,10 +8,15 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
-      <body className="min-h-screen bg-background font-sans antialiased">
-        {children}
-      </body>
-    </html>
+    <>
+      <Head>
+        <link rel="icon" href="/sxc-logofinal.png" />
+      </Head>
+      <html lang="en">
+        <body className="min-h-screen bg-background font-sans antialiased">
+          {children}
+        </body>
+      </html>
+    </>
   )
 }

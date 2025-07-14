@@ -12,6 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { BookOpen, Upload, Search, Users, FileText, GraduationCap, Download, Star, Filter, Plus, User, LogOut, Trash2, Instagram, Twitter, Github } from 'lucide-react'
+import Image from 'next/image'
 
 export default function App() {
   const [user, setUser] = useState(null)
@@ -286,7 +287,7 @@ export default function App() {
         <div className="container mx-auto px-2 sm:px-4 py-3 sm:py-4">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-0">
             <div className="flex items-center space-x-2">
-              <GraduationCap className="h-8 w-8 text-blue-600" />
+              <Image src="/sxc-logofinal.png" alt="SXC ScholarHub Logo" width={48} height={48} className="rounded-full bg-white" />
               <div>
                 <h1 className="text-xl sm:text-2xl font-bold text-gray-900">SXC ScholarHub</h1>
                 <p className="text-xs sm:text-sm text-gray-600">St. Xavier's College Academic Resources</p>
