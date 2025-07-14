@@ -11,7 +11,7 @@ import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { BookOpen, Upload, Search, Users, FileText, GraduationCap, Download, Star, Filter, Plus, User, LogOut } from 'lucide-react'
+import { BookOpen, Upload, Search, Users, FileText, GraduationCap, Download, Star, Filter, Plus, User, LogOut, Trash2 } from 'lucide-react'
 
 export default function App() {
   const [user, setUser] = useState(null)
@@ -26,6 +26,8 @@ export default function App() {
   const [showUploadModal, setShowUploadModal] = useState(false)
   const [showLoginModal, setShowLoginModal] = useState(false)
   const [isLogin, setIsLogin] = useState(true)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [resourceToDelete, setResourceToDelete] = useState(null)
 
   const departments = ['Computer Science', 'Mathematics', 'Physics', 'Chemistry', 'Biology', 'English', 'History', 'Economics']
   const years = ['First Year', 'Second Year', 'Third Year']
@@ -195,18 +197,55 @@ export default function App() {
     reader.readAsDataURL(file)
   }
 
-  const handleDownload = (resource) => {
-    if (!resource.fileContent) {
-      setAlert({ type: 'error', message: 'File content not available' })
+  const handleDownload = async (resource) => {
+    const token = localStorage.getItem('token')
+    if (!token) {
+      setAlert({ type: 'error', message: 'Please login to download files.' })
       return
     }
+    try {
+      const response = await fetch(`/api/resources/${resource.id}/download`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+      if (!response.ok) throw new Error('Download failed')
+      const blob = await response.blob()
+      const url = window.URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = resource.fileName
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
+      window.URL.revokeObjectURL(url)
+    } catch (err) {
+      setAlert({ type: 'error', message: 'Download failed or unauthorized.' })
+    }
+  }
 
-    const link = document.createElement('a')
-    link.href = resource.fileContent
-    link.download = resource.fileName
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
+  const handleDeleteResource = async (resource) => {
+    setLoading(true)
+    const token = localStorage.getItem('token')
+    try {
+      const response = await fetch(`/api/resources/${resource.id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      })
+      if (response.ok) {
+        setAlert({ type: 'success', message: 'Resource deleted successfully!' })
+        fetchResources()
+      } else {
+        const data = await response.json()
+        setAlert({ type: 'error', message: data.error || 'Delete failed' })
+      }
+    } catch (error) {
+      setAlert({ type: 'error', message: 'Delete failed. Please try again.' })
+    } finally {
+      setLoading(false)
+      setDeleteDialogOpen(false)
+      setResourceToDelete(null)
+    }
   }
 
   const handleLogout = () => {
@@ -235,32 +274,32 @@ export default function App() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
+      <header className="bg-white shadow-sm border-b sticky top-0 z-30">
+        <div className="container mx-auto px-2 sm:px-4 py-3 sm:py-4">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-0">
             <div className="flex items-center space-x-2">
               <GraduationCap className="h-8 w-8 text-blue-600" />
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">SXC ScholarHub</h1>
-                <p className="text-sm text-gray-600">St. Xavier's College Academic Resources</p>
+                <h1 className="text-xl sm:text-2xl font-bold text-gray-900">SXC ScholarHub</h1>
+                <p className="text-xs sm:text-sm text-gray-600">St. Xavier's College Academic Resources</p>
               </div>
             </div>
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2 sm:space-x-4 mt-2 sm:mt-0">
               {user ? (
                 <>
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-1 sm:space-x-2">
                     <User className="h-4 w-4" />
-                    <span className="text-sm font-medium">{user.name}</span>
-                    <Badge variant="secondary">{user.role}</Badge>
+                    <span className="text-xs sm:text-sm font-medium truncate max-w-[80px] sm:max-w-none">{user.name}</span>
+                    <Badge variant="secondary" className="text-xs">{user.role}</Badge>
                   </div>
-                  <Button variant="outline" size="sm" onClick={handleLogout}>
-                    <LogOut className="h-4 w-4 mr-2" />
+                  <Button variant="outline" size="sm" onClick={handleLogout} className="text-xs sm:text-sm px-2 sm:px-3">
+                    <LogOut className="h-4 w-4 mr-1 sm:mr-2" />
                     Logout
                   </Button>
                 </>
               ) : (
-                <Button onClick={() => setShowLoginModal(true)}>
-                  <User className="h-4 w-4 mr-2" />
+                <Button onClick={() => setShowLoginModal(true)} className="text-xs sm:text-sm px-2 sm:px-3">
+                  <User className="h-4 w-4 mr-1 sm:mr-2" />
                   Login
                 </Button>
               )}
@@ -271,8 +310,8 @@ export default function App() {
 
       {/* Alert */}
       {alert && (
-        <div className="container mx-auto px-4 pt-4">
-          <Alert className={`${alert.type === 'error' ? 'bg-red-50 border-red-200' : 'bg-green-50 border-green-200'}`}>
+        <div className="container mx-auto px-2 sm:px-4 pt-3 sm:pt-4">
+          <Alert className={`${alert.type === 'error' ? 'bg-red-50 border-red-200' : 'bg-green-50 border-green-200'}`}> 
             <AlertDescription className={alert.type === 'error' ? 'text-red-800' : 'text-green-800'}>
               {alert.message}
             </AlertDescription>
@@ -281,27 +320,27 @@ export default function App() {
       )}
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-2 sm:px-4 py-6 sm:py-8">
         {/* Hero Section */}
-        <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-gray-900 mb-4">
+        <div className="text-center mb-8 sm:mb-12">
+          <h2 className="text-2xl sm:text-4xl font-bold text-gray-900 mb-2 sm:mb-4">
             Your Academic Resources Hub
           </h2>
-          <p className="text-xl text-gray-600 mb-8">
+          <p className="text-base sm:text-xl text-gray-600 mb-4 sm:mb-8">
             Centralized platform for study materials, previous year papers, and academic assistance
           </p>
-          <div className="flex justify-center space-x-4">
+          <div className="flex flex-col sm:flex-row justify-center items-center gap-2 sm:space-x-4">
             {user && user.role === 'admin' && (
               <Dialog open={showUploadModal} onOpenChange={setShowUploadModal}>
                 <DialogTrigger asChild>
-                  <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
+                  <Button size="lg" className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700">
                     <Upload className="h-5 w-5 mr-2" />
                     Upload Resource
                   </Button>
                 </DialogTrigger>
               </Dialog>
             )}
-            <Button variant="outline" size="lg">
+            <Button variant="outline" size="lg" className="w-full sm:w-auto">
               <BookOpen className="h-5 w-5 mr-2" />
               Browse Resources
             </Button>
@@ -309,8 +348,8 @@ export default function App() {
         </div>
 
         {/* Search and Filter Section */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+        <div className="bg-white rounded-lg shadow-sm p-3 sm:p-6 mb-6 sm:mb-8">
+          <div className="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-5">
             <div className="md:col-span-2">
               <Label htmlFor="search">Search Resources</Label>
               <div className="relative">
@@ -320,14 +359,14 @@ export default function App() {
                   placeholder="Search by title, subject, or description..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
+                  className="pl-10 text-sm sm:text-base"
                 />
               </div>
             </div>
             <div>
               <Label htmlFor="department">Department</Label>
               <Select value={filterDepartment} onValueChange={setFilterDepartment}>
-                <SelectTrigger>
+                <SelectTrigger className="text-sm sm:text-base">
                   <SelectValue placeholder="All Departments" />
                 </SelectTrigger>
                 <SelectContent>
@@ -341,7 +380,7 @@ export default function App() {
             <div>
               <Label htmlFor="year">Year</Label>
               <Select value={filterYear} onValueChange={setFilterYear}>
-                <SelectTrigger>
+                <SelectTrigger className="text-sm sm:text-base">
                   <SelectValue placeholder="All Years" />
                 </SelectTrigger>
                 <SelectContent>
@@ -355,7 +394,7 @@ export default function App() {
             <div>
               <Label htmlFor="type">Type</Label>
               <Select value={filterType} onValueChange={setFilterType}>
-                <SelectTrigger>
+                <SelectTrigger className="text-sm sm:text-base">
                   <SelectValue placeholder="All Types" />
                 </SelectTrigger>
                 <SelectContent>
@@ -370,34 +409,47 @@ export default function App() {
         </div>
 
         {/* Resources Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
           {filteredResources.map((resource) => (
             <Card key={resource.id} className="hover:shadow-lg transition-shadow">
               <CardHeader>
-                <div className="flex justify-between items-start">
+                <div className="flex flex-col gap-1 sm:flex-row sm:justify-between sm:items-start">
                   <div>
-                    <CardTitle className="text-lg">{resource.title}</CardTitle>
-                    <CardDescription>{resource.subject}</CardDescription>
+                    <CardTitle className="text-base sm:text-lg">{resource.title}</CardTitle>
+                    <CardDescription className="text-xs sm:text-sm">{resource.subject}</CardDescription>
                   </div>
-                  <Badge variant="outline">{resource.type}</Badge>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="text-xs sm:text-sm mt-1 sm:mt-0">{resource.type}</Badge>
+                    {user && user.role === 'admin' && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-red-600 hover:bg-red-100 p-1"
+                        title="Delete Resource"
+                        onClick={() => { setResourceToDelete(resource); setDeleteDialogOpen(true) }}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-gray-600 mb-4">{resource.description}</p>
-                <div className="flex flex-wrap gap-2 mb-4">
-                  <Badge variant="secondary">{resource.department}</Badge>
-                  <Badge variant="secondary">{resource.year}</Badge>
+                <p className="text-xs sm:text-sm text-gray-600 mb-2 sm:mb-4">{resource.description}</p>
+                <div className="flex flex-wrap gap-1 sm:gap-2 mb-2 sm:mb-4">
+                  <Badge variant="secondary" className="text-xs sm:text-sm">{resource.department}</Badge>
+                  <Badge variant="secondary" className="text-xs sm:text-sm">{resource.year}</Badge>
                 </div>
-                <div className="flex justify-between items-center">
+                <div className="flex flex-col sm:flex-row justify-between items-center gap-2 sm:gap-0">
                   <div className="text-xs text-gray-500">
                     {new Date(resource.uploadedAt).toLocaleDateString()}
                   </div>
                   <Button
                     size="sm"
                     onClick={() => handleDownload(resource)}
-                    className="bg-green-600 hover:bg-green-700"
+                    className="bg-green-600 hover:bg-green-700 w-full sm:w-auto text-xs sm:text-sm"
                   >
-                    <Download className="h-4 w-4 mr-2" />
+                    <Download className="h-4 w-4 mr-1 sm:mr-2" />
                     Download
                   </Button>
                 </div>
@@ -407,41 +459,41 @@ export default function App() {
         </div>
 
         {filteredResources.length === 0 && (
-          <div className="text-center py-12">
-            <FileText className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No resources found</h3>
-            <p className="text-gray-500">Try adjusting your search criteria or upload new resources.</p>
+          <div className="text-center py-8 sm:py-12">
+            <FileText className="h-12 w-12 sm:h-16 sm:w-16 text-gray-400 mx-auto mb-2 sm:mb-4" />
+            <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-1 sm:mb-2">No resources found</h3>
+            <p className="text-xs sm:text-base text-gray-500">Try adjusting your search criteria or upload new resources.</p>
           </div>
         )}
       </main>
 
       {/* Upload Modal */}
       <Dialog open={showUploadModal} onOpenChange={setShowUploadModal}>
-        <DialogContent className="sm:max-w-[500px]">
+        <DialogContent className="w-[95vw] max-w-[95vw] sm:max-w-[500px] p-2 sm:p-6">
           <DialogHeader>
-            <DialogTitle>Upload Academic Resource</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-base sm:text-lg">Upload Academic Resource</DialogTitle>
+            <DialogDescription className="text-xs sm:text-sm">
               Share your study materials with fellow students at SXC
             </DialogDescription>
           </DialogHeader>
-          <form onSubmit={handleUpload} className="space-y-4">
+          <form onSubmit={handleUpload} className="space-y-3 sm:space-y-4">
             <div>
               <Label htmlFor="title">Title</Label>
-              <Input id="title" name="title" placeholder="e.g., Data Structures Notes" required />
+              <Input id="title" name="title" placeholder="e.g., Data Structures Notes" required className="text-sm sm:text-base" />
             </div>
             <div>
               <Label htmlFor="description">Description</Label>
-              <Textarea id="description" name="description" placeholder="Brief description of the resource" />
+              <Textarea id="description" name="description" placeholder="Brief description of the resource" className="text-sm sm:text-base" />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div>
                 <Label htmlFor="subject">Subject</Label>
-                <Input id="subject" name="subject" placeholder="e.g., Computer Science" required />
+                <Input id="subject" name="subject" placeholder="e.g., Computer Science" required className="text-sm sm:text-base" />
               </div>
               <div>
                 <Label htmlFor="department">Department</Label>
                 <Select name="department" required>
-                  <SelectTrigger>
+                  <SelectTrigger className="text-sm sm:text-base">
                     <SelectValue placeholder="Select Department" />
                   </SelectTrigger>
                   <SelectContent>
@@ -452,11 +504,11 @@ export default function App() {
                 </Select>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div>
                 <Label htmlFor="year">Year</Label>
                 <Select name="year" required>
-                  <SelectTrigger>
+                  <SelectTrigger className="text-sm sm:text-base">
                     <SelectValue placeholder="Select Year" />
                   </SelectTrigger>
                   <SelectContent>
@@ -469,7 +521,7 @@ export default function App() {
               <div>
                 <Label htmlFor="type">Type</Label>
                 <Select name="type" required>
-                  <SelectTrigger>
+                  <SelectTrigger className="text-sm sm:text-base">
                     <SelectValue placeholder="Select Type" />
                   </SelectTrigger>
                   <SelectContent>
@@ -482,13 +534,13 @@ export default function App() {
             </div>
             <div>
               <Label htmlFor="file">File</Label>
-              <Input id="file" name="file" type="file" accept=".pdf,.doc,.docx,.ppt,.pptx" required />
+              <Input id="file" name="file" type="file" accept=".pdf,.doc,.docx,.ppt,.pptx" required className="text-sm sm:text-base" />
             </div>
-            <div className="flex justify-end space-x-2">
-              <Button type="button" variant="outline" onClick={() => setShowUploadModal(false)}>
+            <div className="flex flex-col sm:flex-row justify-end gap-2">
+              <Button type="button" variant="outline" onClick={() => setShowUploadModal(false)} className="w-full sm:w-auto text-xs sm:text-sm">
                 Cancel
               </Button>
-              <Button type="submit" disabled={loading}>
+              <Button type="submit" disabled={loading} className="w-full sm:w-auto text-xs sm:text-sm">
                 {loading ? 'Uploading...' : 'Upload Resource'}
               </Button>
             </div>
@@ -498,51 +550,51 @@ export default function App() {
 
       {/* Login/Register Modal */}
       <Dialog open={showLoginModal} onOpenChange={setShowLoginModal}>
-        <DialogContent className="sm:max-w-[400px]">
+        <DialogContent className="w-[95vw] max-w-[95vw] sm:max-w-[400px] p-2 sm:p-6">
           <DialogHeader>
-            <DialogTitle>{isLogin ? 'Login' : 'Register'} to SXC ScholarHub</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-base sm:text-lg">{isLogin ? 'Login' : 'Register'} to SXC ScholarHub</DialogTitle>
+            <DialogDescription className="text-xs sm:text-sm">
               {isLogin ? 'Sign in to your account' : 'Create a new account'}
             </DialogDescription>
           </DialogHeader>
           <Tabs value={isLogin ? 'login' : 'register'} onValueChange={(value) => setIsLogin(value === 'login')}>
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="login">Login</TabsTrigger>
-              <TabsTrigger value="register">Register</TabsTrigger>
+              <TabsTrigger value="login" className="text-xs sm:text-sm">Login</TabsTrigger>
+              <TabsTrigger value="register" className="text-xs sm:text-sm">Register</TabsTrigger>
             </TabsList>
             <TabsContent value="login">
-              <form onSubmit={handleLogin} className="space-y-4">
+              <form onSubmit={handleLogin} className="space-y-3 sm:space-y-4">
                 <div>
                   <Label htmlFor="email">Email</Label>
-                  <Input id="email" name="email" type="email" required />
+                  <Input id="email" name="email" type="email" required className="text-sm sm:text-base" />
                 </div>
                 <div>
                   <Label htmlFor="password">Password</Label>
-                  <Input id="password" name="password" type="password" required />
+                  <Input id="password" name="password" type="password" required className="text-sm sm:text-base" />
                 </div>
-                <Button type="submit" className="w-full" disabled={loading}>
+                <Button type="submit" className="w-full text-xs sm:text-sm" disabled={loading}>
                   {loading ? 'Logging in...' : 'Login'}
                 </Button>
               </form>
             </TabsContent>
             <TabsContent value="register">
-              <form onSubmit={handleRegister} className="space-y-4">
+              <form onSubmit={handleRegister} className="space-y-3 sm:space-y-4">
                 <div>
                   <Label htmlFor="name">Full Name</Label>
-                  <Input id="name" name="name" required />
+                  <Input id="name" name="name" required className="text-sm sm:text-base" />
                 </div>
                 <div>
                   <Label htmlFor="email">Email</Label>
-                  <Input id="email" name="email" type="email" required />
+                  <Input id="email" name="email" type="email" required className="text-sm sm:text-base" />
                 </div>
                 <div>
                   <Label htmlFor="password">Password</Label>
-                  <Input id="password" name="password" type="password" required />
+                  <Input id="password" name="password" type="password" required className="text-sm sm:text-base" />
                 </div>
                 <div>
                   <Label htmlFor="department">Department</Label>
                   <Select name="department" required>
-                    <SelectTrigger>
+                    <SelectTrigger className="text-sm sm:text-base">
                       <SelectValue placeholder="Select Department" />
                     </SelectTrigger>
                     <SelectContent>
@@ -555,7 +607,7 @@ export default function App() {
                 <div>
                   <Label htmlFor="year">Year</Label>
                   <Select name="year" required>
-                    <SelectTrigger>
+                    <SelectTrigger className="text-sm sm:text-base">
                       <SelectValue placeholder="Select Year" />
                     </SelectTrigger>
                     <SelectContent>
@@ -565,12 +617,30 @@ export default function App() {
                     </SelectContent>
                   </Select>
                 </div>
-                <Button type="submit" className="w-full" disabled={loading}>
+                <Button type="submit" className="w-full text-xs sm:text-sm" disabled={loading}>
                   {loading ? 'Creating Account...' : 'Create Account'}
                 </Button>
               </form>
             </TabsContent>
           </Tabs>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent className="w-[90vw] max-w-[350px]">
+          <DialogHeader>
+            <DialogTitle className="text-base">Confirm Delete</DialogTitle>
+            <DialogDescription className="text-xs">
+              Are you sure you want to delete <span className="font-semibold">{resourceToDelete?.title}</span>? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end gap-2 mt-4">
+            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)} className="text-xs">Cancel</Button>
+            <Button variant="destructive" onClick={() => handleDeleteResource(resourceToDelete)} disabled={loading} className="text-xs">
+              {loading ? 'Deleting...' : 'Delete'}
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

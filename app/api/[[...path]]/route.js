@@ -325,9 +325,16 @@ async function handleRoute(request, { params }) {
       }
 
       // Prepare resource
+      let fileBuffer = null;
+      if (resourceData.fileContent && resourceData.fileContent.startsWith('data:')) {
+        // Convert base64 data URL to Buffer
+        const base64 = resourceData.fileContent.split(',')[1];
+        fileBuffer = Buffer.from(base64, 'base64');
+      }
       const resource = {
         id: uuidv4(),
         ...resourceData,
+        fileContent: fileBuffer || resourceData.fileContent, // Store as Buffer if possible
         uploadedBy: user.id,
         uploadedByName: user.name,
         uploadedAt: new Date().toISOString(),
@@ -405,6 +412,45 @@ async function handleRoute(request, { params }) {
       }
 
       return handleCORS(NextResponse.json({ message: "Resource deleted successfully" }))
+    }
+
+    // Secure download endpoint
+    if (route.startsWith('/resources/') && route.endsWith('/download') && method === 'GET') {
+      // Check authentication
+      const authHeader = request.headers.get('Authorization')
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return handleCORS(new NextResponse('Authentication required', { status: 401 }))
+      }
+      const token = authHeader.substring(7)
+      const decoded = verifyToken(token)
+      if (!decoded) {
+        return handleCORS(new NextResponse('Invalid token', { status: 401 }))
+      }
+      // Get resource ID
+      const parts = route.split('/')
+      const resourceId = parts[2]
+      const resource = await database.collection('resources').findOne({ id: resourceId })
+      if (!resource) {
+        return handleCORS(new NextResponse('Resource not found', { status: 404 }))
+      }
+      // Extract file data (Buffer or base64 string)
+      let fileBuffer
+      if (Buffer.isBuffer(resource.fileContent)) {
+        fileBuffer = resource.fileContent
+      } else if (typeof resource.fileContent === 'string' && resource.fileContent.startsWith('data:')) {
+        const base64 = resource.fileContent.split(',')[1]
+        fileBuffer = Buffer.from(base64, 'base64')
+      } else {
+        return handleCORS(new NextResponse('File not available', { status: 404 }))
+      }
+      const response = new NextResponse(fileBuffer, {
+        status: 200,
+        headers: {
+          'Content-Type': resource.fileType,
+          'Content-Disposition': `attachment; filename="${resource.fileName}"`,
+        },
+      })
+      return handleCORS(response)
     }
 
     // Users endpoints (for admin)
