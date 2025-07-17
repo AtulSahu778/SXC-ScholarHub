@@ -66,7 +66,7 @@ MONGO_URL=your_mongodb_connection_string
 ```sh
 npm run dev
 ```
-The app will be available at [http://localhost:3000](http://localhost:3000).
+The app will be available at [sxchub.vercel.app].
 
 ---
 
