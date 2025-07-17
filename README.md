@@ -117,7 +117,7 @@ MIT License. See [LICENSE](LICENSE) for details.
 ---
 
 ## Credits
-Developed by Atul Sahu and contributors.
+Developed by Atul Sahu and AI.
 
 ---
 
