@@ -316,31 +316,41 @@ async function handleRoute(request, { params }) {
           { status: 400 }
         ));
       }
-      const { title, department, year, type } = resourceData;
+      const { title, department, year, type, fileContent, gdriveLink } = resourceData;
       if (!title || !department || !year || !type) {
         return handleCORS(NextResponse.json(
           { error: "Required fields are missing" }, 
           { status: 400 }
         ));
       }
-
+      if (!fileContent && !gdriveLink) {
+        return handleCORS(NextResponse.json(
+          { error: "Either a file or a Google Drive link is required" },
+          { status: 400 }
+        ));
+      }
+      if (fileContent && gdriveLink) {
+        return handleCORS(NextResponse.json(
+          { error: "Provide only one: file or Google Drive link" },
+          { status: 400 }
+        ));
+      }
       // Prepare resource
       let fileBuffer = null;
-      if (resourceData.fileContent && resourceData.fileContent.startsWith('data:')) {
+      if (fileContent && fileContent.startsWith('data:')) {
         // Convert base64 data URL to Buffer
-        const base64 = resourceData.fileContent.split(',')[1];
+        const base64 = fileContent.split(',')[1];
         fileBuffer = Buffer.from(base64, 'base64');
       }
       const resource = {
         id: uuidv4(),
         ...resourceData,
-        fileContent: fileBuffer || resourceData.fileContent, // Store as Buffer if possible
+        fileContent: fileBuffer || fileContent, // Store as Buffer if possible
         uploadedBy: user.id,
         uploadedByName: user.name,
         uploadedAt: new Date().toISOString(),
         createdAt: new Date().toISOString()
       };
-
       // Insert and respond
       try {
         await database.collection('resources').insertOne(resource);
@@ -451,6 +461,62 @@ async function handleRoute(request, { params }) {
         },
       })
       return handleCORS(response)
+    }
+
+    if (route.startsWith('/resources/') && method === 'PATCH') {
+      // Check authentication for editing
+      const authHeader = request.headers.get('Authorization')
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return handleCORS(NextResponse.json(
+          { error: "Authentication required" }, 
+          { status: 401 }
+        ))
+      }
+      const token = authHeader.substring(7)
+      const decoded = verifyToken(token)
+      if (!decoded) {
+        return handleCORS(NextResponse.json(
+          { error: "Invalid token" }, 
+          { status: 401 }
+        ))
+      }
+      const user = await database.collection('users').findOne({ id: decoded.userId })
+      if (!user || user.role !== 'admin') {
+        return handleCORS(NextResponse.json(
+          { error: "Only administrators can edit resources" }, 
+          { status: 403 }
+        ))
+      }
+      const resourceId = route.split('/')[2]
+      let updateData
+      try {
+        updateData = await request.json()
+      } catch (err) {
+        return handleCORS(NextResponse.json(
+          { error: "Invalid JSON body", details: err.message }, 
+          { status: 400 }
+        ))
+      }
+      // Remove fields that should not be updated directly
+      delete updateData.id
+      delete updateData.uploadedBy
+      delete updateData.uploadedByName
+      delete updateData.createdAt
+      // Set updatedAt
+      updateData.updatedAt = new Date().toISOString()
+      const result = await database.collection('resources').findOneAndUpdate(
+        { id: resourceId },
+        { $set: updateData },
+        { returnDocument: 'after' }
+      )
+      if (!result.value) {
+        return handleCORS(NextResponse.json(
+          { error: "Resource not found" }, 
+          { status: 404 }
+        ))
+      }
+      const { _id, ...updatedResource } = result.value
+      return handleCORS(NextResponse.json(updatedResource))
     }
 
     // Users endpoints (for admin)

@@ -24,15 +24,22 @@ export default function App() {
   const [filterDepartment, setFilterDepartment] = useState('all')
   const [filterYear, setFilterYear] = useState('all')
   const [filterType, setFilterType] = useState('all')
+  const [filterSemester, setFilterSemester] = useState('all');
   const [showUploadModal, setShowUploadModal] = useState(false)
   const [showLoginModal, setShowLoginModal] = useState(false)
   const [isLogin, setIsLogin] = useState(true)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [resourceToDelete, setResourceToDelete] = useState(null)
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [resourceToEdit, setResourceToEdit] = useState(null);
 
   const departments = ['Computer Science', 'Mathematics', 'Physics', 'Chemistry', 'Biology', 'English', 'History', 'Economics']
   const years = ['First Year', 'Second Year', 'Third Year']
   const resourceTypes = ['Notes', 'Previous Year Papers', 'Syllabus', 'Assignments', 'Lab Manual']
+  const semesters = [
+    'Semester 1', 'Semester 2', 'Semester 3', 'Semester 4',
+    'Semester 5', 'Semester 6', 'Semester 7', 'Semester 8'
+  ];
 
   const resourcesRef = useRef(null)
 
@@ -42,7 +49,7 @@ export default function App() {
 
   useEffect(() => {
     filterResources()
-  }, [resources, searchTerm, filterDepartment, filterYear, filterType])
+  }, [resources, searchTerm, filterDepartment, filterYear, filterType, filterSemester])
 
   const fetchResources = async () => {
     try {
@@ -64,8 +71,8 @@ export default function App() {
       const matchesDepartment = filterDepartment === 'all' || resource.department === filterDepartment
       const matchesYear = filterYear === 'all' || resource.year === filterYear
       const matchesType = filterType === 'all' || resource.type === filterType
-      
-      return matchesSearch && matchesDepartment && matchesYear && matchesType
+      const matchesSemester = filterSemester === 'all' || resource.semester === filterSemester
+      return matchesSearch && matchesDepartment && matchesYear && matchesType && matchesSemester
     })
     setFilteredResources(filtered)
   }
@@ -147,17 +154,44 @@ export default function App() {
 
     setLoading(true)
     const formData = new FormData(e.target)
-    const file = formData.get('file')
-    
-    if (!file) {
-      setAlert({ type: 'error', message: 'Please select a file to upload' })
-      setLoading(false)
-      return
+    const file = formData.get('file');
+    const rawGdriveLink = formData.get('gdriveLink')?.trim();
+    const gdriveLink = rawGdriveLink?.replace(/^@+/, ''); // Remove leading @
+
+    const isAdmin = user && user.role === 'admin';
+    const requiredFields = [
+      formData.get('title'),
+      formData.get('subject'),
+      formData.get('department'),
+      formData.get('year'),
+      formData.get('semester'),
+      formData.get('type')
+    ];
+    if (!isAdmin && requiredFields.some(val => !val || val === '' || val === 'all')) {
+      setAlert({ type: 'error', message: 'Please fill in all required fields.' });
+      setLoading(false);
+      return;
     }
 
-    // Convert file to base64
-    const reader = new FileReader()
-    reader.onload = async (e) => {
+    const hasFile = file && file.name; // Only true if a file is actually selected
+
+    if (!hasFile && !gdriveLink) {
+      setAlert({ type: 'error', message: 'Please select a file or provide a Google Drive link' });
+      setLoading(false);
+      return;
+    }
+    if (hasFile && gdriveLink) {
+      setAlert({ type: 'error', message: 'Please provide only one: file or Google Drive link' });
+      setLoading(false);
+      return;
+    }
+    if (gdriveLink) {
+      if (!gdriveLink.startsWith('https://drive.google.com/')) {
+        setAlert({ type: 'error', message: 'Please enter a valid Google Drive link.' })
+        setLoading(false)
+        return;
+      }
+      // Upload as link only
       try {
         const resourceData = {
           title: formData.get('title'),
@@ -165,13 +199,11 @@ export default function App() {
           subject: formData.get('subject'),
           department: formData.get('department'),
           year: formData.get('year'),
+          semester: formData.get('semester'),
           type: formData.get('type'),
-          fileContent: e.target.result,
-          fileName: file.name,
-          fileType: file.type,
+          gdriveLink,
           uploadedAt: new Date().toISOString()
         }
-
         const token = localStorage.getItem('token')
         const response = await fetch('/api/resources', {
           method: 'POST',
@@ -181,7 +213,6 @@ export default function App() {
           },
           body: JSON.stringify(resourceData)
         })
-
         const data = await response.json()
         if (response.ok) {
           setAlert({ type: 'success', message: 'Resource uploaded successfully!' })
@@ -196,8 +227,52 @@ export default function App() {
       } finally {
         setLoading(false)
       }
+      return
     }
-    reader.readAsDataURL(file)
+    if (file) {
+      // Convert file to base64
+      const reader = new FileReader()
+      reader.onload = async (ev) => {
+        try {
+          const resourceData = {
+            title: formData.get('title'),
+            description: formData.get('description'),
+            subject: formData.get('subject'),
+            department: formData.get('department'),
+            year: formData.get('year'),
+            semester: formData.get('semester'),
+            type: formData.get('type'),
+            fileContent: ev.target.result,
+            fileName: file.name,
+            fileType: file.type,
+            uploadedAt: new Date().toISOString()
+          }
+          const token = localStorage.getItem('token')
+          const response = await fetch('/api/resources', {
+            method: 'POST',
+            headers: { 
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(resourceData)
+          })
+          const data = await response.json()
+          if (response.ok) {
+            setAlert({ type: 'success', message: 'Resource uploaded successfully!' })
+            setShowUploadModal(false)
+            fetchResources()
+            e.target.reset()
+          } else {
+            setAlert({ type: 'error', message: data.error || 'Upload failed' })
+          }
+        } catch (error) {
+          setAlert({ type: 'error', message: 'Upload failed. Please try again.' })
+        } finally {
+          setLoading(false)
+        }
+      }
+      reader.readAsDataURL(file)
+    }
   }
 
   const handleDownload = async (resource) => {
@@ -250,6 +325,69 @@ export default function App() {
       setResourceToDelete(null)
     }
   }
+
+  const handleEditResource = (resource) => {
+    setResourceToEdit(resource);
+    setEditDialogOpen(true);
+  };
+
+  const handleEditSubmit = async (e) => {
+    e.preventDefault();
+    if (!user || user.role !== 'admin' || !resourceToEdit) return;
+    setLoading(true);
+    const formData = new FormData(e.target);
+    const updatedData = {
+      title: formData.get('title'),
+      description: formData.get('description'),
+      subject: formData.get('subject'),
+      department: formData.get('department'),
+      year: formData.get('year'),
+      semester: formData.get('semester'),
+      type: formData.get('type'),
+      gdriveLink: formData.get('gdriveLink')?.trim() || '',
+    };
+    // Only send fileContent if a new file is selected
+    const file = formData.get('file');
+    if (file && file.name) {
+      const reader = new FileReader();
+      reader.onload = async (ev) => {
+        updatedData.fileContent = ev.target.result;
+        updatedData.fileName = file.name;
+        updatedData.fileType = file.type;
+        await submitEdit(updatedData);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      await submitEdit(updatedData);
+    }
+  };
+
+  const submitEdit = async (updatedData) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`/api/resources/${resourceToEdit.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(updatedData),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setAlert({ type: 'success', message: 'Resource updated successfully!' });
+        setEditDialogOpen(false);
+        setResourceToEdit(null);
+        fetchResources();
+      } else {
+        setAlert({ type: 'error', message: data.error || 'Update failed' });
+      }
+    } catch (error) {
+      setAlert({ type: 'error', message: 'Update failed. Please try again.' });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleLogout = () => {
     setUser(null)
@@ -357,28 +495,28 @@ export default function App() {
         </div>
 
         {/* Search and Filter Section */}
-        <div className="bg-white rounded-lg shadow-sm p-3 sm:p-6 mb-6 sm:mb-8">
-          <div className="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-5">
+        <div className="bg-white rounded-lg shadow-sm p-3 sm:p-6 mb-6 sm:mb-8 dark:bg-[#1A1829] dark:text-[#F0F2F5]">
+          <div className="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-6">
             <div className="md:col-span-2">
               <Label htmlFor="search">Search Resources</Label>
               <div className="relative">
-                <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400 dark:text-[#A484F0]" />
                 <Input
                   id="search"
                   placeholder="Search by title, subject, or description..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 text-sm sm:text-base"
+                  className="pl-10 text-sm sm:text-base dark:bg-[#23203A] dark:text-[#F0F2F5] dark:placeholder-[#667085]"
                 />
               </div>
             </div>
             <div>
               <Label htmlFor="department">Department</Label>
               <Select value={filterDepartment} onValueChange={setFilterDepartment}>
-                <SelectTrigger className="text-sm sm:text-base">
+                <SelectTrigger className="text-sm sm:text-base dark:bg-[#23203A] dark:text-[#F0F2F5]">
                   <SelectValue placeholder="All Departments" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="dark:bg-[#23203A] dark:text-[#F0F2F5]">
                   <SelectItem value="all">All Departments</SelectItem>
                   {departments.map(dept => (
                     <SelectItem key={dept} value={dept}>{dept}</SelectItem>
@@ -389,10 +527,10 @@ export default function App() {
             <div>
               <Label htmlFor="year">Year</Label>
               <Select value={filterYear} onValueChange={setFilterYear}>
-                <SelectTrigger className="text-sm sm:text-base">
+                <SelectTrigger className="text-sm sm:text-base dark:bg-[#23203A] dark:text-[#F0F2F5]">
                   <SelectValue placeholder="All Years" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="dark:bg-[#23203A] dark:text-[#F0F2F5]">
                   <SelectItem value="all">All Years</SelectItem>
                   {years.map(year => (
                     <SelectItem key={year} value={year}>{year}</SelectItem>
@@ -401,12 +539,26 @@ export default function App() {
               </Select>
             </div>
             <div>
+              <Label htmlFor="semester">Semester</Label>
+              <Select value={filterSemester} onValueChange={setFilterSemester}>
+                <SelectTrigger className="text-sm sm:text-base dark:bg-[#23203A] dark:text-[#F0F2F5]">
+                  <SelectValue placeholder="All Semesters" />
+                </SelectTrigger>
+                <SelectContent className="dark:bg-[#23203A] dark:text-[#F0F2F5]">
+                  <SelectItem value="all">All Semesters</SelectItem>
+                  {semesters.map(sem => (
+                    <SelectItem key={sem} value={sem}>{sem}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
               <Label htmlFor="type">Type</Label>
               <Select value={filterType} onValueChange={setFilterType}>
-                <SelectTrigger className="text-sm sm:text-base">
+                <SelectTrigger className="text-sm sm:text-base dark:bg-[#23203A] dark:text-[#F0F2F5]">
                   <SelectValue placeholder="All Types" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="dark:bg-[#23203A] dark:text-[#F0F2F5]">
                   <SelectItem value="all">All Types</SelectItem>
                   {resourceTypes.map(type => (
                     <SelectItem key={type} value={type}>{type}</SelectItem>
@@ -430,15 +582,26 @@ export default function App() {
                   <div className="flex items-center gap-2">
                     <Badge variant="outline" className="text-xs sm:text-sm mt-1 sm:mt-0">{resource.type}</Badge>
                     {user && user.role === 'admin' && (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="text-red-600 hover:bg-red-100 p-1"
-                        title="Delete Resource"
-                        onClick={() => { setResourceToDelete(resource); setDeleteDialogOpen(true) }}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                      <>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-blue-600 hover:bg-blue-100 p-1"
+                          title="Edit Resource"
+                          onClick={() => handleEditResource(resource)}
+                        >
+                          <Plus className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-red-600 hover:bg-red-100 p-1"
+                          title="Delete Resource"
+                          onClick={() => { setResourceToDelete(resource); setDeleteDialogOpen(true) }}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </>
                     )}
                   </div>
                 </div>
@@ -448,19 +611,36 @@ export default function App() {
                 <div className="flex flex-wrap gap-1 sm:gap-2 mb-2 sm:mb-4">
                   <Badge variant="secondary" className="text-xs sm:text-sm">{resource.department}</Badge>
                   <Badge variant="secondary" className="text-xs sm:text-sm">{resource.year}</Badge>
+                  {resource.semester && (
+                    <Badge variant="secondary" className="text-xs sm:text-sm">
+                      {resource.semester === 'all' ? 'All Semesters' : resource.semester}
+                    </Badge>
+                  )}
                 </div>
                 <div className="flex flex-col sm:flex-row justify-between items-center gap-2 sm:gap-0">
                   <div className="text-xs text-gray-500">
                     {new Date(resource.uploadedAt).toLocaleDateString()}
                   </div>
-                  <Button
-                    size="sm"
-                    onClick={() => handleDownload(resource)}
-                    className="bg-green-600 hover:bg-green-700 w-full sm:w-auto text-xs sm:text-sm"
-                  >
-                    <Download className="h-4 w-4 mr-1 sm:mr-2" />
-                    Download
-                  </Button>
+                  {resource.gdriveLink ? (
+                    <a
+                      href={resource.gdriveLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="bg-blue-600 hover:bg-blue-700 w-full sm:w-auto text-xs sm:text-sm px-3 py-2 rounded text-white flex items-center justify-center"
+                    >
+                      <Download className="h-4 w-4 mr-1 sm:mr-2" />
+                      View on Google Drive
+                    </a>
+                  ) : (
+                    <Button
+                      size="sm"
+                      onClick={() => handleDownload(resource)}
+                      className="bg-green-600 hover:bg-green-700 w-full sm:w-auto text-xs sm:text-sm"
+                    >
+                      <Download className="h-4 w-4 mr-1 sm:mr-2" />
+                      Download
+                    </Button>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -488,7 +668,7 @@ export default function App() {
           <form onSubmit={handleUpload} className="space-y-3 sm:space-y-4">
             <div>
               <Label htmlFor="title">Title</Label>
-              <Input id="title" name="title" placeholder="e.g., Data Structures Notes" required className="text-sm sm:text-base" />
+              <Input id="title" name="title" placeholder="e.g., Data Structures Notes" className="text-sm sm:text-base" />
             </div>
             <div>
               <Label htmlFor="description">Description</Label>
@@ -497,11 +677,11 @@ export default function App() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div>
                 <Label htmlFor="subject">Subject</Label>
-                <Input id="subject" name="subject" placeholder="e.g., Computer Science" required className="text-sm sm:text-base" />
+                <Input id="subject" name="subject" placeholder="e.g., Computer Science" className="text-sm sm:text-base" />
               </div>
               <div>
                 <Label htmlFor="department">Department</Label>
-                <Select name="department" required>
+                <Select name="department">
                   <SelectTrigger className="text-sm sm:text-base">
                     <SelectValue placeholder="Select Department" />
                   </SelectTrigger>
@@ -516,7 +696,7 @@ export default function App() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div>
                 <Label htmlFor="year">Year</Label>
-                <Select name="year" required>
+                <Select name="year">
                   <SelectTrigger className="text-sm sm:text-base">
                     <SelectValue placeholder="Select Year" />
                   </SelectTrigger>
@@ -528,22 +708,38 @@ export default function App() {
                 </Select>
               </div>
               <div>
-                <Label htmlFor="type">Type</Label>
-                <Select name="type" required>
-                  <SelectTrigger className="text-sm sm:text-base">
-                    <SelectValue placeholder="Select Type" />
+                <Label htmlFor="semester">Semester</Label>
+                <Select name="semester">
+                  <SelectTrigger className="text-sm sm:text-base dark:bg-[#23203A] dark:text-[#F0F2F5]">
+                    <SelectValue placeholder="Select Semester" />
                   </SelectTrigger>
-                  <SelectContent>
-                    {resourceTypes.map(type => (
-                      <SelectItem key={type} value={type}>{type}</SelectItem>
+                  <SelectContent className="dark:bg-[#23203A] dark:text-[#F0F2F5]">
+                    <SelectItem value="all">All Semesters</SelectItem>
+                    {semesters.map(sem => (
+                      <SelectItem key={sem} value={sem}>{sem}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
             </div>
             <div>
+              <Label htmlFor="type">Type</Label>
+              <Select name="type">
+                <SelectTrigger className="text-sm sm:text-base">
+                  <SelectValue placeholder="Select Type" />
+                </SelectTrigger>
+                <SelectContent>
+                  {resourceTypes.map(type => (
+                    <SelectItem key={type} value={type}>{type}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
               <Label htmlFor="file">File</Label>
-              <Input id="file" name="file" type="file" accept=".pdf,.doc,.docx,.ppt,.pptx" required className="text-sm sm:text-base" />
+              <Input id="file" name="file" type="file" accept=".pdf,.doc,.docx,.ppt,.pptx" className="text-sm sm:text-base" />
+              <div className="text-xs text-gray-500 mt-1">Or provide a Google Drive link below instead of uploading a file.</div>
+              <Input id="gdriveLink" name="gdriveLink" type="url" placeholder="https://drive.google.com/..." className="text-sm sm:text-base mt-2" />
             </div>
             <div className="flex flex-col sm:flex-row justify-end gap-2">
               <Button type="button" variant="outline" onClick={() => setShowUploadModal(false)} className="w-full sm:w-auto text-xs sm:text-sm">
@@ -650,6 +846,110 @@ export default function App() {
               {loading ? 'Deleting...' : 'Delete'}
             </Button>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Resource Modal */}
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent className="w-[95vw] max-w-[95vw] sm:max-w-[500px] p-2 sm:p-6 dark:bg-[#1A1829] dark:text-[#F0F2F5]">
+          <DialogHeader>
+            <DialogTitle className="text-base sm:text-lg">Edit Academic Resource</DialogTitle>
+            <DialogDescription className="text-xs sm:text-sm">
+              Update the details of this resource
+            </DialogDescription>
+          </DialogHeader>
+          {resourceToEdit && (
+            <form onSubmit={handleEditSubmit} className="space-y-3 sm:space-y-4">
+              <div>
+                <Label htmlFor="edit-title">Title</Label>
+                <Input id="edit-title" name="title" defaultValue={resourceToEdit.title} required className="text-sm sm:text-base dark:bg-[#23203A] dark:text-[#F0F2F5]" />
+              </div>
+              <div>
+                <Label htmlFor="edit-description">Description</Label>
+                <Textarea id="edit-description" name="description" defaultValue={resourceToEdit.description} className="text-sm sm:text-base dark:bg-[#23203A] dark:text-[#F0F2F5]" />
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                <div>
+                  <Label htmlFor="edit-subject">Subject</Label>
+                  <Input id="edit-subject" name="subject" defaultValue={resourceToEdit.subject} required className="text-sm sm:text-base dark:bg-[#23203A] dark:text-[#F0F2F5]" />
+                </div>
+                <div>
+                  <Label htmlFor="edit-department">Department</Label>
+                  <Select name="department" defaultValue={resourceToEdit.department} required>
+                    <SelectTrigger className="text-sm sm:text-base dark:bg-[#23203A] dark:text-[#F0F2F5]">
+                      <SelectValue placeholder="Select Department" />
+                    </SelectTrigger>
+                    <SelectContent className="dark:bg-[#23203A] dark:text-[#F0F2F5]">
+                      {departments.map(dept => (
+                        <SelectItem key={dept} value={dept}>{dept}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                <div>
+                  <Label htmlFor="edit-year">Year</Label>
+                  <Select name="year" defaultValue={resourceToEdit.year} required>
+                    <SelectTrigger className="text-sm sm:text-base dark:bg-[#23203A] dark:text-[#F0F2F5]">
+                      <SelectValue placeholder="Select Year" />
+                    </SelectTrigger>
+                    <SelectContent className="dark:bg-[#23203A] dark:text-[#F0F2F5]">
+                      {years.map(year => (
+                        <SelectItem key={year} value={year}>{year}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label htmlFor="edit-semester">Semester</Label>
+                  <Select name="semester" defaultValue={resourceToEdit.semester} required>
+                    <SelectTrigger className="text-sm sm:text-base dark:bg-[#23203A] dark:text-[#F0F2F5]">
+                      <SelectValue placeholder="Select Semester" />
+                    </SelectTrigger>
+                    <SelectContent className="dark:bg-[#23203A] dark:text-[#F0F2F5]">
+                      <SelectItem value="all">All Semesters</SelectItem>
+                      {semesters.map(sem => (
+                        <SelectItem key={sem} value={sem}>{sem}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                <div>
+                  <Label htmlFor="edit-type">Type</Label>
+                  <Select name="type" defaultValue={resourceToEdit.type} required>
+                    <SelectTrigger className="text-sm sm:text-base dark:bg-[#23203A] dark:text-[#F0F2F5]">
+                      <SelectValue placeholder="Select Type" />
+                    </SelectTrigger>
+                    <SelectContent className="dark:bg-[#23203A] dark:text-[#F0F2F5]">
+                      {resourceTypes.map(type => (
+                        <SelectItem key={type} value={type}>{type}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label htmlFor="edit-gdriveLink">Google Drive Link</Label>
+                  <Input id="edit-gdriveLink" name="gdriveLink" type="url" defaultValue={resourceToEdit.gdriveLink} placeholder="https://drive.google.com/..." className="text-sm sm:text-base dark:bg-[#23203A] dark:text-[#F0F2F5]" />
+                </div>
+              </div>
+              <div>
+                <Label htmlFor="edit-file">Replace File (optional)</Label>
+                <Input id="edit-file" name="file" type="file" accept=".pdf,.doc,.docx,.ppt,.pptx" className="text-sm sm:text-base dark:bg-[#23203A] dark:text-[#F0F2F5]" />
+                <div className="text-xs text-gray-500 mt-1 dark:text-[#667085]">Leave blank to keep the current file.</div>
+              </div>
+              <div className="flex flex-col sm:flex-row justify-end gap-2">
+                <Button type="button" variant="outline" onClick={() => setEditDialogOpen(false)} className="w-full sm:w-auto text-xs sm:text-sm">
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={loading} className="w-full sm:w-auto text-xs sm:text-sm bg-gradient-to-r from-[#7F56D9] to-[#A484F0] text-[#F0F2F5]">
+                  {loading ? 'Saving...' : 'Save Changes'}
+                </Button>
+              </div>
+            </form>
+          )}
         </DialogContent>
       </Dialog>
 
