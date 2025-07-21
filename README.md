@@ -1,6 +1,6 @@
 # SXC ScholarHub
 
-SXC ScholarHub is a full-stack web application for St. Xavier's College, designed to centralize academic resources such as study materials, previous year papers, and more. It features robust authentication, role-based access (admin/student), resource upload/download, and advanced search/filtering.
+SXC ScholarHub is a full-stack web application for St. Xavier's College, designed to centralize academic resources such as study materials, previous year papers, and more. It features robust authentication, role-based access (admin/student), resource upload/download, advanced search/filtering, a Smart Academic Dashboard, dark theme, bookmark system, download tracking, and enhanced accessibility.
 
 ---
 
@@ -11,6 +11,11 @@ SXC ScholarHub is a full-stack web application for St. Xavier's College, designe
 - **Student Access**: All students can browse, search, and download resources.
 - **Advanced Search & Filter**: Search by title, subject, description, department, year, and type.
 - **Resource Management**: Admins can delete resources. All uploads are attributed to the uploader.
+- **Smart Academic Dashboard**: Personalized dashboard for students and admins. Students see total downloads, recent resources, bookmarks, and trending materials. Admins see total uploads, recent uploads, and pending requests.
+- **Bookmark System**: Users can bookmark resources for quick access. Bookmarked resources are shown in the dashboard.
+- **Download Tracking**: Tracks user downloads and trending resources. Recent views and download counts are displayed in the dashboard.
+- **Dark Theme**: Professional dark mode with smooth transitions, gradient backgrounds, and theme persistence.
+- **Accessibility**: Keyboard navigation, focus indicators, ARIA labels, and high contrast support.
 - **Responsive UI**: Built with Next.js, Tailwind CSS, and Radix UI for a modern, mobile-friendly experience.
 - **MongoDB Backend**: All data is stored in MongoDB, with secure connection and data validation.
 
@@ -75,6 +80,9 @@ The app will be available at [(https://sxchub.vercel.app/)].
 - **Browse Resources:** Use the search and filter options to find resources.
 - **Upload Resource:** (Admins only) Click 'Upload Resource', fill the form, and submit.
 - **Download Resource:** Click the download icon on any resource card.
+- **Bookmark Resource:** Click the bookmark icon to save resources for later. Bookmarked resources appear in your dashboard.
+- **Dashboard:** Access your personalized dashboard for stats, recent activity, bookmarks, and trending resources. Admins see upload stats and pending requests.
+- **Theme Toggle:** Switch between light and dark mode using the theme toggle in the header. Theme preference is saved.
 
 ---
 
@@ -89,6 +97,9 @@ The app will be available at [(https://sxchub.vercel.app/)].
   - `GET /api/resources/:id/download` — Download resource
   - `GET /api/users` — List users (admin only)
   - `GET /api/search` — Search resources
+  - `GET /api/dashboard/student` — Student dashboard data
+  - `GET /api/dashboard/admin` — Admin dashboard data
+  - `POST /api/resources/:id/bookmark` — Add/remove bookmark
 
 ---
 
@@ -100,14 +111,16 @@ The app will be available at [(https://sxchub.vercel.app/)].
 ---
 
 ## Customization
-- **Theme:** Easily switch between light/dark mode (see `globals.css` and Tailwind config).
+- **Theme:** Easily switch between light/dark mode (see `globals.css`, Tailwind config, and theme toggle component).
 - **Departments/Years/Types:** Update the lists in `app/page.js` as needed.
+- **Dashboard Cards:** Customize dashboard cards and stats in `app/page.js`.
+- **Animations:** Modify or add custom animations in `globals.css`.
 
 ---
 
 ## Testing
-- Backend API is tested and verified (see `test_result.md`).
-- Frontend testing is not included by default.
+- Backend API and new dashboard features are tested and verified (see `test_result.md`).
+- Frontend dark theme, dashboard, and bookmark functionality are tested and production-ready.
 
 ---
 

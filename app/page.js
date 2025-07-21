@@ -539,10 +539,10 @@ export default function App() {
                     <BarChart3 className="h-4 w-4 mr-1 sm:mr-2" />
                     Dashboard
                   </Button>
-                  <div className="flex items-center space-x-1 sm:space-x-2">
-                    <User className="h-4 w-4" />
-                    <span className="text-xs sm:text-sm font-medium truncate max-w-[80px] sm:max-w-none">{user.name}</span>
-                    <Badge variant="secondary" className="text-xs">{user.role}</Badge>
+                  <div className="flex items-center min-w-0 gap-x-2">
+                    <User className="h-4 w-4 flex-shrink-0" />
+                    <span className="text-xs sm:text-sm font-medium truncate max-w-[100px] sm:max-w-[160px]">{user.name}</span>
+                    <Badge variant="secondary" className="text-xs flex-shrink-0">{user.role}</Badge>
                   </div>
                   <Button 
                     variant="outline" 
