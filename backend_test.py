@@ -743,6 +743,300 @@ class ScholarHubAPITester:
             except Exception as e:
                 self.log_result("Student Can View Resources", False, f"Exception: {str(e)}")
 
+    def test_smart_dashboard_functionality(self):
+        """
+        Comprehensive test suite for Smart Academic Dashboard functionality
+        Tests all new dashboard features: user schema, dashboard endpoints, bookmarks, download tracking
+        """
+        print("\n📊 SMART ACADEMIC DASHBOARD TESTING")
+        print("-" * 60)
+        
+        # Test users for dashboard functionality
+        admin_user = {
+            "email": "sahuatul2005@gmail.com",  # This email gets admin role
+            "password": "AdminDash123",
+            "name": "Dr. Dashboard Admin",
+            "department": "Computer Science",
+            "year": "Faculty"
+        }
+        
+        student_user = {
+            "email": f"student.dash.{str(uuid.uuid4())[:8]}@sxc.edu.in",
+            "password": "StudentDash123",
+            "name": "Dashboard Student",
+            "department": "Mathematics", 
+            "year": "2024"
+        }
+        
+        admin_token = None
+        student_token = None
+        admin_user_id = None
+        student_user_id = None
+        test_resource_id = None
+        
+        # 1. Test User Registration Enhancement - New Schema Fields
+        try:
+            response = requests.post(f"{self.base_url}/auth/register", json=student_user)
+            if response.status_code == 200:
+                data = response.json()
+                student_token = data.get('token')
+                student_user_id = data.get('user', {}).get('id')
+                user_data = data.get('user', {})
+                
+                # Check new schema fields
+                has_downloads = 'downloads' in user_data and user_data['downloads'] == 0
+                has_recent_views = 'recentViews' in user_data and user_data['recentViews'] == []
+                has_bookmarks = 'bookmarks' in user_data and user_data['bookmarks'] == []
+                
+                if has_downloads and has_recent_views and has_bookmarks:
+                    self.log_result("User Registration Enhancement", True, "New user initialized with downloads: 0, recentViews: [], bookmarks: []")
+                else:
+                    self.log_result("User Registration Enhancement", False, f"Missing new fields - downloads: {has_downloads}, recentViews: {has_recent_views}, bookmarks: {has_bookmarks}")
+            else:
+                self.log_result("User Registration Enhancement", False, f"Registration failed: {response.status_code}")
+        except Exception as e:
+            self.log_result("User Registration Enhancement", False, f"Exception: {str(e)}")
+        
+        # Register admin user
+        try:
+            response = requests.post(f"{self.base_url}/auth/register", json=admin_user)
+            if response.status_code == 200:
+                data = response.json()
+                admin_token = data.get('token')
+                admin_user_id = data.get('user', {}).get('id')
+            else:
+                # Admin might already exist, try login
+                login_response = requests.post(f"{self.base_url}/auth/login", 
+                                             json={"email": admin_user["email"], "password": admin_user["password"]})
+                if login_response.status_code == 200:
+                    data = login_response.json()
+                    admin_token = data.get('token')
+                    admin_user_id = data.get('user', {}).get('id')
+        except Exception as e:
+            print(f"Admin setup error: {e}")
+        
+        # 2. Test Resource Creation Enhancement - downloadCount: 0
+        if admin_token:
+            try:
+                resource_data = {
+                    "title": "Dashboard Test Resource",
+                    "description": "Resource for testing dashboard functionality",
+                    "department": "Computer Science",
+                    "year": "2024",
+                    "type": "notes",
+                    "subject": "Dashboard Testing",
+                    "fileContent": "data:text/plain;base64,VGVzdCBmaWxlIGNvbnRlbnQ=",  # "Test file content" in base64
+                    "fileName": "test-resource.txt",
+                    "fileType": "text/plain"
+                }
+                
+                headers = {"Authorization": f"Bearer {admin_token}", "Content-Type": "application/json"}
+                response = requests.post(f"{self.base_url}/resources", json=resource_data, headers=headers)
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    test_resource_id = data.get('id')
+                    
+                    # Verify resource was created with downloadCount: 0
+                    resource_response = requests.get(f"{self.base_url}/resources/{test_resource_id}")
+                    if resource_response.status_code == 200:
+                        resource = resource_response.json()
+                        if resource.get('downloadCount') == 0:
+                            self.log_result("Resource Creation Enhancement", True, "New resource created with downloadCount: 0")
+                        else:
+                            self.log_result("Resource Creation Enhancement", False, f"Resource downloadCount is {resource.get('downloadCount')}, expected 0")
+                    else:
+                        self.log_result("Resource Creation Enhancement", False, "Could not verify resource downloadCount")
+                else:
+                    self.log_result("Resource Creation Enhancement", False, f"Resource creation failed: {response.status_code}")
+            except Exception as e:
+                self.log_result("Resource Creation Enhancement", False, f"Exception: {str(e)}")
+        
+        # 3. Test Download Tracking Enhancement
+        if student_token and test_resource_id:
+            try:
+                headers = {"Authorization": f"Bearer {student_token}"}
+                
+                # Download the resource
+                download_response = requests.get(f"{self.base_url}/resources/{test_resource_id}/download", headers=headers)
+                
+                if download_response.status_code == 200:
+                    # Verify user download count increased
+                    verify_response = requests.get(f"{self.base_url}/auth/verify", headers=headers)
+                    if verify_response.status_code == 200:
+                        user_data = verify_response.json().get('user', {})
+                        downloads = user_data.get('downloads', 0)
+                        recent_views = user_data.get('recentViews', [])
+                        
+                        # Check resource download count increased
+                        resource_response = requests.get(f"{self.base_url}/resources/{test_resource_id}")
+                        if resource_response.status_code == 200:
+                            resource = resource_response.json()
+                            resource_downloads = resource.get('downloadCount', 0)
+                            
+                            if downloads >= 1 and test_resource_id in recent_views and resource_downloads >= 1:
+                                self.log_result("Download Tracking Enhancement", True, f"Download tracking working: user downloads={downloads}, resource downloads={resource_downloads}, in recent views")
+                            else:
+                                self.log_result("Download Tracking Enhancement", False, f"Download tracking failed: user downloads={downloads}, resource downloads={resource_downloads}, in recent views={test_resource_id in recent_views}")
+                        else:
+                            self.log_result("Download Tracking Enhancement", False, "Could not verify resource download count")
+                    else:
+                        self.log_result("Download Tracking Enhancement", False, "Could not verify user download count")
+                else:
+                    self.log_result("Download Tracking Enhancement", False, f"Download failed: {download_response.status_code}")
+            except Exception as e:
+                self.log_result("Download Tracking Enhancement", False, f"Exception: {str(e)}")
+        
+        # 4. Test Bookmark Functionality
+        if student_token and test_resource_id:
+            try:
+                headers = {"Authorization": f"Bearer {student_token}"}
+                
+                # Add bookmark
+                bookmark_response = requests.post(f"{self.base_url}/resources/{test_resource_id}/bookmark", headers=headers)
+                
+                if bookmark_response.status_code == 200:
+                    bookmark_data = bookmark_response.json()
+                    is_bookmarked = bookmark_data.get('isBookmarked')
+                    message = bookmark_data.get('message', '')
+                    
+                    if is_bookmarked and 'added' in message.lower():
+                        # Remove bookmark
+                        remove_response = requests.post(f"{self.base_url}/resources/{test_resource_id}/bookmark", headers=headers)
+                        if remove_response.status_code == 200:
+                            remove_data = remove_response.json()
+                            is_removed = not remove_data.get('isBookmarked')
+                            remove_message = remove_data.get('message', '')
+                            
+                            if is_removed and 'removed' in remove_message.lower():
+                                self.log_result("Bookmark Functionality", True, "Bookmark add/remove working correctly")
+                            else:
+                                self.log_result("Bookmark Functionality", False, f"Bookmark removal failed: {remove_data}")
+                        else:
+                            self.log_result("Bookmark Functionality", False, f"Bookmark removal request failed: {remove_response.status_code}")
+                    else:
+                        self.log_result("Bookmark Functionality", False, f"Bookmark addition failed: {bookmark_data}")
+                else:
+                    self.log_result("Bookmark Functionality", False, f"Bookmark request failed: {bookmark_response.status_code}")
+            except Exception as e:
+                self.log_result("Bookmark Functionality", False, f"Exception: {str(e)}")
+        
+        # 5. Test Dashboard Student Endpoint
+        if student_token:
+            try:
+                headers = {"Authorization": f"Bearer {student_token}"}
+                response = requests.get(f"{self.base_url}/dashboard/student", headers=headers)
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    required_fields = ['totalDownloads', 'recentResources', 'bookmarkedResources', 'trendingResources']
+                    missing_fields = [field for field in required_fields if field not in data]
+                    
+                    if not missing_fields:
+                        total_downloads = data.get('totalDownloads', 0)
+                        recent_count = len(data.get('recentResources', []))
+                        bookmarked_count = len(data.get('bookmarkedResources', []))
+                        trending_count = len(data.get('trendingResources', []))
+                        
+                        self.log_result("Dashboard Student Endpoint", True, 
+                                      f"Student dashboard working: downloads={total_downloads}, recent={recent_count}, bookmarked={bookmarked_count}, trending={trending_count}")
+                    else:
+                        self.log_result("Dashboard Student Endpoint", False, f"Missing fields: {missing_fields}")
+                else:
+                    self.log_result("Dashboard Student Endpoint", False, f"Dashboard request failed: {response.status_code}")
+            except Exception as e:
+                self.log_result("Dashboard Student Endpoint", False, f"Exception: {str(e)}")
+        
+        # 6. Test Dashboard Admin Endpoint
+        if admin_token:
+            try:
+                headers = {"Authorization": f"Bearer {admin_token}"}
+                response = requests.get(f"{self.base_url}/dashboard/admin", headers=headers)
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    required_fields = ['totalUploads', 'recentUploads', 'pendingRequests']
+                    missing_fields = [field for field in required_fields if field not in data]
+                    
+                    if not missing_fields:
+                        total_uploads = data.get('totalUploads', 0)
+                        recent_uploads_count = len(data.get('recentUploads', []))
+                        pending_count = len(data.get('pendingRequests', []))
+                        
+                        self.log_result("Dashboard Admin Endpoint", True, 
+                                      f"Admin dashboard working: uploads={total_uploads}, recent={recent_uploads_count}, pending={pending_count}")
+                    else:
+                        self.log_result("Dashboard Admin Endpoint", False, f"Missing fields: {missing_fields}")
+                else:
+                    self.log_result("Dashboard Admin Endpoint", False, f"Admin dashboard request failed: {response.status_code}")
+            except Exception as e:
+                self.log_result("Dashboard Admin Endpoint", False, f"Exception: {str(e)}")
+        
+        # 7. Test Dashboard Authentication Requirements
+        try:
+            # Test student dashboard without token
+            response = requests.get(f"{self.base_url}/dashboard/student")
+            if response.status_code == 401:
+                self.log_result("Dashboard Authentication - Student", True, "Student dashboard correctly requires authentication")
+            else:
+                self.log_result("Dashboard Authentication - Student", False, f"Expected 401, got {response.status_code}")
+            
+            # Test admin dashboard without token
+            response = requests.get(f"{self.base_url}/dashboard/admin")
+            if response.status_code == 401:
+                self.log_result("Dashboard Authentication - Admin", True, "Admin dashboard correctly requires authentication")
+            else:
+                self.log_result("Dashboard Authentication - Admin", False, f"Expected 401, got {response.status_code}")
+        except Exception as e:
+            self.log_result("Dashboard Authentication", False, f"Exception: {str(e)}")
+        
+        # 8. Test Admin Dashboard Access Control
+        if student_token:
+            try:
+                headers = {"Authorization": f"Bearer {student_token}"}
+                response = requests.get(f"{self.base_url}/dashboard/admin", headers=headers)
+                
+                if response.status_code == 403:
+                    error_message = response.json().get('error', '')
+                    if 'admin' in error_message.lower():
+                        self.log_result("Admin Dashboard Access Control", True, "Student correctly blocked from admin dashboard")
+                    else:
+                        self.log_result("Admin Dashboard Access Control", False, f"Wrong error message: {error_message}")
+                else:
+                    self.log_result("Admin Dashboard Access Control", False, f"Expected 403, got {response.status_code}")
+            except Exception as e:
+                self.log_result("Admin Dashboard Access Control", False, f"Exception: {str(e)}")
+        
+        # 9. Test Bookmark Authentication
+        if test_resource_id:
+            try:
+                # Test bookmark without token
+                response = requests.post(f"{self.base_url}/resources/{test_resource_id}/bookmark")
+                if response.status_code == 401:
+                    self.log_result("Bookmark Authentication", True, "Bookmark endpoint correctly requires authentication")
+                else:
+                    self.log_result("Bookmark Authentication", False, f"Expected 401, got {response.status_code}")
+            except Exception as e:
+                self.log_result("Bookmark Authentication", False, f"Exception: {str(e)}")
+        
+        # 10. Test Bookmark Non-existent Resource
+        if student_token:
+            try:
+                fake_resource_id = str(uuid.uuid4())
+                headers = {"Authorization": f"Bearer {student_token}"}
+                response = requests.post(f"{self.base_url}/resources/{fake_resource_id}/bookmark", headers=headers)
+                
+                if response.status_code == 404:
+                    error_message = response.json().get('error', '')
+                    if 'not found' in error_message.lower():
+                        self.log_result("Bookmark Non-existent Resource", True, "Bookmark correctly handles non-existent resource")
+                    else:
+                        self.log_result("Bookmark Non-existent Resource", False, f"Wrong error message: {error_message}")
+                else:
+                    self.log_result("Bookmark Non-existent Resource", False, f"Expected 404, got {response.status_code}")
+            except Exception as e:
+                self.log_result("Bookmark Non-existent Resource", False, f"Exception: {str(e)}")
+
     def run_all_tests(self):
         """Run all test cases"""
         print("🚀 Starting SXC ScholarHub Backend API Tests")
@@ -770,7 +1064,8 @@ class ScholarHubAPITester:
             self.test_search_combined,
             self.test_cors_headers,
             self.test_options_request,
-            self.test_admin_only_resource_upload  # New admin-only tests
+            self.test_admin_only_resource_upload,  # Existing admin-only tests
+            self.test_smart_dashboard_functionality  # New Smart Dashboard tests
         ]
         
         for test_method in test_methods:
