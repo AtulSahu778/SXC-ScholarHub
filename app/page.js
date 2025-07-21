@@ -723,6 +723,25 @@ export default function App() {
                     >
                       {resource.type}
                     </Badge>
+                    {user && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className={`p-1 transition-all duration-200 ${
+                          bookmarkedResources.has(resource.id)
+                            ? 'text-yellow-600 dark:text-yellow-400 hover:bg-yellow-100 dark:hover:bg-yellow-900/30'
+                            : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-900/30'
+                        }`}
+                        title={bookmarkedResources.has(resource.id) ? "Remove Bookmark" : "Add Bookmark"}
+                        onClick={() => handleBookmark(resource.id)}
+                      >
+                        {bookmarkedResources.has(resource.id) ? (
+                          <BookmarkCheck className="h-4 w-4" />
+                        ) : (
+                          <Bookmark className="h-4 w-4" />
+                        )}
+                      </Button>
+                    )}
                     {user && user.role === 'admin' && (
                       <>
                         <Button
