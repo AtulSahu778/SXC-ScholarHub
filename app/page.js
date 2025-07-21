@@ -38,6 +38,7 @@ export default function App() {
   const [showDashboard, setShowDashboard] = useState(false)
   const [dashboardData, setDashboardData] = useState(null)
   const [bookmarkedResources, setBookmarkedResources] = useState(new Set())
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   const departments = ['Computer Science', 'Mathematics', 'Physics', 'Chemistry', 'Biology', 'English', 'History', 'Economics']
   const years = ['First Year', 'Second Year', 'Third Year']
