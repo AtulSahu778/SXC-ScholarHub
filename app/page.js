@@ -528,6 +528,15 @@ export default function App() {
               <ThemeToggle />
               {user ? (
                 <>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => setShowDashboard(!showDashboard)}
+                    className="text-xs sm:text-sm px-2 sm:px-3 hover:bg-primary/10 transition-all duration-200"
+                  >
+                    <BarChart3 className="h-4 w-4 mr-1 sm:mr-2" />
+                    Dashboard
+                  </Button>
                   <div className="flex items-center space-x-1 sm:space-x-2">
                     <User className="h-4 w-4" />
                     <span className="text-xs sm:text-sm font-medium truncate max-w-[80px] sm:max-w-none">{user.name}</span>
