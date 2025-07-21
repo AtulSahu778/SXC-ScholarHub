@@ -349,6 +349,7 @@ async function handleRoute(request, { params }) {
         id: uuidv4(),
         ...resourceData,
         fileContent: fileBuffer || fileContent, // Store as Buffer if possible
+        downloadCount: 0, // Track download count for trending
         uploadedBy: user.id,
         uploadedByName: user.name,
         uploadedAt: new Date().toISOString(),
