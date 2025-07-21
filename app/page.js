@@ -670,15 +670,15 @@ export default function App() {
         </div>
       </header>
 
-      {/* Enhanced Alert with Dark Theme */}
+      {/* Enhanced Alert - Responsive */}
       {alert && (
-        <div className="container mx-auto px-2 sm:px-4 pt-3 sm:pt-4 animate-slide-up">
+        <div className="container mx-auto px-3 sm:px-4 lg:px-6 xl:px-8 pt-3 sm:pt-4 animate-slide-up">
           <Alert className={`${
             alert.type === 'error' 
               ? 'bg-red-50/80 dark:bg-red-950/20 border-red-200 dark:border-red-800 backdrop-blur-sm' 
               : 'bg-green-50/80 dark:bg-green-950/20 border-green-200 dark:border-green-800 backdrop-blur-sm'
           } transition-all duration-300`}> 
-            <AlertDescription className={`${
+            <AlertDescription className={`text-sm lg:text-base ${
               alert.type === 'error' 
                 ? 'text-red-800 dark:text-red-400' 
                 : 'text-green-800 dark:text-green-400'
@@ -689,28 +689,28 @@ export default function App() {
         </div>
       )}
 
-      {/* Enhanced Main Content */}
-      <main className="container mx-auto px-2 sm:px-4 py-6 sm:py-8">
-        {/* Enhanced Hero Section */}
-        <div className="text-center mb-8 sm:mb-12 animate-fade-in">
-          <div className="relative mb-4">
-            <h2 className="text-2xl sm:text-4xl font-bold text-gray-900 dark:text-foreground mb-2 sm:mb-4 relative">
+      {/* Enhanced Main Content - Ultra Responsive */}
+      <main className="container mx-auto px-3 sm:px-4 lg:px-6 xl:px-8 py-6 lg:py-8 xl:py-12 max-w-8xl">
+        {/* Enhanced Hero Section - Fully Responsive */}
+        <div className="text-center mb-8 lg:mb-12 xl:mb-16 animate-fade-in">
+          <div className="relative mb-4 lg:mb-6">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl font-bold text-gray-900 dark:text-foreground mb-2 lg:mb-4 relative leading-tight">
               Your Academic Resources Hub
               <div className="absolute -inset-1 bg-gradient-to-r from-primary/20 to-purple-500/20 blur-2xl -z-10 animate-pulse"></div>
             </h2>
           </div>
-          <p className="text-base sm:text-xl text-gray-600 dark:text-muted-foreground mb-4 sm:mb-8 max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl text-gray-600 dark:text-muted-foreground mb-6 lg:mb-8 xl:mb-12 max-w-2xl lg:max-w-4xl xl:max-w-6xl mx-auto leading-relaxed">
             Centralized platform for study materials, previous year papers, and academic assistance
           </p>
-          <div className="flex flex-col sm:flex-row justify-center items-center gap-2 sm:space-x-4">
+          <div className="flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-4 lg:gap-6">
             {user && user.role === 'admin' && (
               <Dialog open={showUploadModal} onOpenChange={setShowUploadModal}>
                 <DialogTrigger asChild>
                   <Button 
                     size="lg" 
-                    className="w-full sm:w-auto bg-gradient-to-r from-primary to-purple-500 hover:from-purple-600 hover:to-primary text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                    className="w-full sm:w-auto text-sm sm:text-base lg:text-lg px-6 lg:px-8 py-3 lg:py-4 bg-gradient-to-r from-primary to-purple-500 hover:from-purple-600 hover:to-primary text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
                   >
-                    <Upload className="h-5 w-5 mr-2" />
+                    <Upload className="h-5 w-5 lg:h-6 lg:w-6 mr-2 lg:mr-3" />
                     Upload Resource
                   </Button>
                 </DialogTrigger>
@@ -719,10 +719,10 @@ export default function App() {
             <Button 
               variant="outline" 
               size="lg" 
-              className="w-full sm:w-auto border-primary/50 hover:bg-primary/10 dark:hover:bg-primary/10 transition-all duration-300 transform hover:scale-105" 
+              className="w-full sm:w-auto text-sm sm:text-base lg:text-lg px-6 lg:px-8 py-3 lg:py-4 border-primary/50 hover:bg-primary/10 dark:hover:bg-primary/10 transition-all duration-300 transform hover:scale-105" 
               onClick={handleBrowseResources}
             >
-              <BookOpen className="h-5 w-5 mr-2" />
+              <BookOpen className="h-5 w-5 lg:h-6 lg:w-6 mr-2 lg:mr-3" />
               Browse Resources
             </Button>
           </div>
