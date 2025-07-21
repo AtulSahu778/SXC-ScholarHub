@@ -14,8 +14,14 @@ body {
 
 /* Enhanced Webkit scrollbar styling */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
   background: #1A1829;
+}
+
+@media (min-width: 1024px) {
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
 }
 
 ::-webkit-scrollbar-thumb {
