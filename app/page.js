@@ -475,12 +475,14 @@ export default function App() {
     setUser(null)
     localStorage.removeItem('token')
     setAlert({ type: 'success', message: 'Logged out successfully' })
+    setMobileMenuOpen(false)
   }
 
   const handleBrowseResources = () => {
     if (resourcesRef.current) {
       resourcesRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
     }
+    setMobileMenuOpen(false)
   }
 
   // Check for existing token on component mount
