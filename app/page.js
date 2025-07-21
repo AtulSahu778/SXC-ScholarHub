@@ -34,6 +34,9 @@ export default function App() {
   const [resourceToDelete, setResourceToDelete] = useState(null)
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [resourceToEdit, setResourceToEdit] = useState(null);
+  const [showDashboard, setShowDashboard] = useState(false)
+  const [dashboardData, setDashboardData] = useState(null)
+  const [bookmarkedResources, setBookmarkedResources] = useState(new Set())
 
   const departments = ['Computer Science', 'Mathematics', 'Physics', 'Chemistry', 'Biology', 'English', 'History', 'Economics']
   const years = ['First Year', 'Second Year', 'Third Year']
