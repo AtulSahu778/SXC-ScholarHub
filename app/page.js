@@ -624,6 +624,237 @@ export default function App() {
           </div>
         </div>
 
+        {/* Smart Academic Dashboard */}
+        {user && showDashboard && dashboardData && (
+          <div className="mb-8 sm:mb-12 animate-fade-in">
+            <h3 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-foreground mb-4 sm:mb-6">
+              {user.role === 'admin' ? 'Admin Dashboard' : 'Student Dashboard'}
+            </h3>
+            
+            {user.role === 'student' ? (
+              <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-4">
+                {/* Total Downloads Card */}
+                <Card className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 border-blue-200 dark:border-blue-800 hover:shadow-lg transition-all duration-300">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-medium text-blue-800 dark:text-blue-300">Total Downloads</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex items-center space-x-2">
+                      <Download className="h-8 w-8 text-blue-600 dark:text-blue-400" />
+                      <div className="text-2xl font-bold text-blue-900 dark:text-blue-100">
+                        {dashboardData.totalDownloads}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Recent Resources Card */}
+                <Card className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 border-green-200 dark:border-green-800 hover:shadow-lg transition-all duration-300">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-medium text-green-800 dark:text-green-300">Recent Resources</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex items-center space-x-2">
+                      <FileText className="h-8 w-8 text-green-600 dark:text-green-400" />
+                      <div className="text-2xl font-bold text-green-900 dark:text-green-100">
+                        {dashboardData.recentResources?.length || 0}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Bookmarked Resources Card */}
+                <Card className="bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-yellow-900/20 dark:to-yellow-800/20 border-yellow-200 dark:border-yellow-800 hover:shadow-lg transition-all duration-300">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-medium text-yellow-800 dark:text-yellow-300">Bookmarked</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex items-center space-x-2">
+                      <BookmarkCheck className="h-8 w-8 text-yellow-600 dark:text-yellow-400" />
+                      <div className="text-2xl font-bold text-yellow-900 dark:text-yellow-100">
+                        {dashboardData.bookmarkedResources?.length || 0}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Trending Resources Card */}
+                <Card className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 border-purple-200 dark:border-purple-800 hover:shadow-lg transition-all duration-300">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-medium text-purple-800 dark:text-purple-300">Trending</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex items-center space-x-2">
+                      <TrendingUp className="h-8 w-8 text-purple-600 dark:text-purple-400" />
+                      <div className="text-2xl font-bold text-purple-900 dark:text-purple-100">
+                        {dashboardData.trendingResources?.length || 0}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-3">
+                {/* Total Uploads Card */}
+                <Card className="bg-gradient-to-br from-indigo-50 to-indigo-100 dark:from-indigo-900/20 dark:to-indigo-800/20 border-indigo-200 dark:border-indigo-800 hover:shadow-lg transition-all duration-300">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-medium text-indigo-800 dark:text-indigo-300">Total Uploads</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex items-center space-x-2">
+                      <Upload className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
+                      <div className="text-2xl font-bold text-indigo-900 dark:text-indigo-100">
+                        {dashboardData.totalUploads}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Recent Uploads Card */}
+                <Card className="bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-900/20 dark:to-emerald-800/20 border-emerald-200 dark:border-emerald-800 hover:shadow-lg transition-all duration-300">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-medium text-emerald-800 dark:text-emerald-300">Recent Uploads</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex items-center space-x-2">
+                      <FileText className="h-8 w-8 text-emerald-600 dark:text-emerald-400" />
+                      <div className="text-2xl font-bold text-emerald-900 dark:text-emerald-100">
+                        {dashboardData.recentUploads?.length || 0}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Pending Requests Card */}
+                <Card className="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 border-orange-200 dark:border-orange-800 hover:shadow-lg transition-all duration-300">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-medium text-orange-800 dark:text-orange-300">Pending Requests</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex items-center space-x-2">
+                      <Users className="h-8 w-8 text-orange-600 dark:text-orange-400" />
+                      <div className="text-2xl font-bold text-orange-900 dark:text-orange-100">
+                        {dashboardData.pendingRequests?.length || 0}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+
+            {/* Detailed Lists */}
+            {user.role === 'student' && (
+              <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 mt-6">
+                {/* Recent Resources List */}
+                {dashboardData.recentResources && dashboardData.recentResources.length > 0 && (
+                  <Card className="bg-card/80 dark:bg-card/80 backdrop-blur-md border-border">
+                    <CardHeader>
+                      <CardTitle className="text-base sm:text-lg flex items-center">
+                        <FileText className="h-5 w-5 mr-2" />
+                        Recently Accessed
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-2">
+                        {dashboardData.recentResources.slice(0, 5).map((resource) => (
+                          <div key={resource.id} className="flex justify-between items-center p-2 rounded hover:bg-accent/50 transition-colors">
+                            <div className="flex-1 min-w-0">
+                              <div className="text-sm font-medium text-foreground truncate">{resource.title}</div>
+                              <div className="text-xs text-muted-foreground">{resource.department} • {resource.type}</div>
+                            </div>
+                            <Badge variant="outline" className="text-xs ml-2">{resource.year}</Badge>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Bookmarked Resources List */}
+                {dashboardData.bookmarkedResources && dashboardData.bookmarkedResources.length > 0 && (
+                  <Card className="bg-card/80 dark:bg-card/80 backdrop-blur-md border-border">
+                    <CardHeader>
+                      <CardTitle className="text-base sm:text-lg flex items-center">
+                        <BookmarkCheck className="h-5 w-5 mr-2" />
+                        Bookmarked Resources
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-2">
+                        {dashboardData.bookmarkedResources.slice(0, 5).map((resource) => (
+                          <div key={resource.id} className="flex justify-between items-center p-2 rounded hover:bg-accent/50 transition-colors">
+                            <div className="flex-1 min-w-0">
+                              <div className="text-sm font-medium text-foreground truncate">{resource.title}</div>
+                              <div className="text-xs text-muted-foreground">{resource.department} • {resource.type}</div>
+                            </div>
+                            <Badge variant="outline" className="text-xs ml-2">{resource.year}</Badge>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Trending Resources List */}
+                {dashboardData.trendingResources && dashboardData.trendingResources.length > 0 && (
+                  <Card className="bg-card/80 dark:bg-card/80 backdrop-blur-md border-border md:col-span-2">
+                    <CardHeader>
+                      <CardTitle className="text-base sm:text-lg flex items-center">
+                        <TrendingUp className="h-5 w-5 mr-2" />
+                        Trending Resources
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        {dashboardData.trendingResources.map((resource) => (
+                          <div key={resource.id} className="flex justify-between items-center p-2 rounded hover:bg-accent/50 transition-colors">
+                            <div className="flex-1 min-w-0">
+                              <div className="text-sm font-medium text-foreground truncate">{resource.title}</div>
+                              <div className="text-xs text-muted-foreground">{resource.department} • {resource.type}</div>
+                            </div>
+                            <div className="flex items-center space-x-2 ml-2">
+                              <Badge variant="outline" className="text-xs">{resource.downloadCount || 0} downloads</Badge>
+                              <Badge variant="outline" className="text-xs">{resource.year}</Badge>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
+            )}
+
+            {/* Admin Lists */}
+            {user.role === 'admin' && dashboardData.recentUploads && dashboardData.recentUploads.length > 0 && (
+              <Card className="bg-card/80 dark:bg-card/80 backdrop-blur-md border-border mt-6">
+                <CardHeader>
+                  <CardTitle className="text-base sm:text-lg flex items-center">
+                    <Upload className="h-5 w-5 mr-2" />
+                    Recent Uploads
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    {dashboardData.recentUploads.map((resource) => (
+                      <div key={resource.id} className="flex justify-between items-center p-2 rounded hover:bg-accent/50 transition-colors">
+                        <div className="flex-1 min-w-0">
+                          <div className="text-sm font-medium text-foreground truncate">{resource.title}</div>
+                          <div className="text-xs text-muted-foreground">{resource.department} • {resource.type}</div>
+                        </div>
+                        <div className="flex items-center space-x-2 ml-2">
+                          <Badge variant="outline" className="text-xs">{new Date(resource.uploadedAt).toLocaleDateString()}</Badge>
+                          <Badge variant="outline" className="text-xs">{resource.year}</Badge>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        )}
+
         {/* Enhanced Search and Filter Section */}
         <div className="bg-white/80 dark:bg-card/80 backdrop-blur-md rounded-xl shadow-sm border border-border p-3 sm:p-6 mb-6 sm:mb-8 animate-scale-in">
           <div className="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-6">
