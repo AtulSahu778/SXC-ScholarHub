@@ -457,6 +457,31 @@ async function handleRoute(request, { params }) {
       } else {
         return handleCORS(new NextResponse('File not available', { status: 404 }))
       }
+
+      // Update user download tracking and resource download count
+      const user = await database.collection('users').findOne({ id: decoded.userId })
+      if (user) {
+        // Update user downloads count and recent views
+        let recentViews = user.recentViews || []
+        recentViews = recentViews.filter(id => id !== resourceId) // Remove if already exists
+        recentViews.unshift(resourceId) // Add to beginning
+        recentViews = recentViews.slice(0, 5) // Keep only last 5
+
+        await database.collection('users').updateOne(
+          { id: decoded.userId },
+          { 
+            $inc: { downloads: 1 },
+            $set: { recentViews }
+          }
+        )
+
+        // Increment resource download count
+        await database.collection('resources').updateOne(
+          { id: resourceId },
+          { $inc: { downloadCount: 1 } }
+        )
+      }
+
       const response = new NextResponse(fileBuffer, {
         status: 200,
         headers: {
