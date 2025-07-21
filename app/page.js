@@ -989,7 +989,7 @@ export default function App() {
             )}
 
             {/* Admin Lists */}
-            {user.role === 'admin' && dashboardData.recentUploads && dashboardData.recentUploads.length > 0 && (
+            {user.role === 'admin' && dashboardData && dashboardData.recentUploads && dashboardData.recentUploads.length > 0 && (
               <Card className="bg-card/80 dark:bg-card/80 backdrop-blur-md border-border mt-6">
                 <CardHeader>
                   <CardTitle className="text-base sm:text-lg flex items-center">
@@ -1014,6 +1014,7 @@ export default function App() {
                   </div>
                 </CardContent>
               </Card>
+            )}
             )}
           </div>
         )}
