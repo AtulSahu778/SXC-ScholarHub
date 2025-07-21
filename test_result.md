@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Test the admin-only resource upload functionality in SXC ScholarHub. Focus on admin registration, admin authorization, resource upload authorization, admin resource management, and student access testing."
+user_problem_statement: "Test the comprehensive dark theme implementation for SXC ScholarHub frontend. Focus on theme toggle functionality, dark theme visual testing, interactive components testing, user journey testing, and accessibility & performance."
 
 backend:
   - task: "Authentication System - User Registration"
