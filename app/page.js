@@ -208,6 +208,8 @@ export default function App() {
         setShowLoginModal(false)
         setAlert({ type: 'success', message: 'Registration successful!' })
         localStorage.setItem('token', data.token)
+        // Fetch dashboard data after registration
+        setTimeout(() => fetchDashboardData(), 100)
       } else {
         setAlert({ type: 'error', message: data.error || 'Registration failed' })
       }
