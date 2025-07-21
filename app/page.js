@@ -726,7 +726,7 @@ export default function App() {
 
       {/* Upload Modal - Enhanced */}
       <Dialog open={showUploadModal} onOpenChange={setShowUploadModal}>
-        <DialogContent className="w-[95vw] max-w-[95vw] sm:max-w-[500px] p-2 sm:p-6 bg-card/95 dark:bg-card/95 backdrop-blur-md border-border">
+        <DialogContent className="w-full max-w-sm sm:max-w-md md:max-w-lg p-4 sm:p-6 bg-card/95 dark:bg-card/95 backdrop-blur-md border-border overflow-y-auto max-h-[90vh]">
           <DialogHeader>
             <DialogTitle className="text-base sm:text-lg text-card-foreground">Upload Academic Resource</DialogTitle>
             <DialogDescription className="text-xs sm:text-sm text-muted-foreground">
@@ -1159,7 +1159,7 @@ export default function App() {
       <footer className="w-full border-t border-border bg-card/50 dark:bg-card/30 backdrop-blur-md mt-8 py-4">
         <div className="container mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-muted-foreground">
           <div>
-            Built by <span className="font-semibold text-foreground">Atul Sahu</span>
+            Built by <span className="font-semibold text-foreground">Atul Sahu</span> CS Dept.
           </div>
           <div className="flex gap-4 items-center">
             <a 
