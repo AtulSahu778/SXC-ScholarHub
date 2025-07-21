@@ -621,6 +621,180 @@ async function handleRoute(request, { params }) {
       return handleCORS(NextResponse.json(cleanedResources))
     }
 
+    // Dashboard endpoints
+    if (route === '/dashboard/student' && method === 'GET') {
+      // Check authentication
+      const authHeader = request.headers.get('Authorization')
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return handleCORS(NextResponse.json(
+          { error: "Authentication required" }, 
+          { status: 401 }
+        ))
+      }
+
+      const token = authHeader.substring(7)
+      const decoded = verifyToken(token)
+      
+      if (!decoded) {
+        return handleCORS(NextResponse.json(
+          { error: "Invalid token" }, 
+          { status: 401 }
+        ))
+      }
+
+      const user = await database.collection('users').findOne({ id: decoded.userId })
+      if (!user) {
+        return handleCORS(NextResponse.json(
+          { error: "User not found" }, 
+          { status: 404 }
+        ))
+      }
+
+      // Get recent resources based on user's recent views
+      const recentResources = await database.collection('resources')
+        .find({ id: { $in: user.recentViews || [] } })
+        .limit(5)
+        .toArray()
+
+      // Get bookmarked resources
+      const bookmarkedResources = await database.collection('resources')
+        .find({ id: { $in: user.bookmarks || [] } })
+        .limit(10)
+        .toArray()
+
+      // Get top 5 trending resources (by download count)
+      const trendingResources = await database.collection('resources')
+        .find({})
+        .sort({ downloadCount: -1 })
+        .limit(5)
+        .toArray()
+
+      // Clean MongoDB _id fields
+      const cleanRecent = recentResources.map(({ _id, ...rest }) => rest)
+      const cleanBookmarked = bookmarkedResources.map(({ _id, ...rest }) => rest)
+      const cleanTrending = trendingResources.map(({ _id, ...rest }) => rest)
+
+      return handleCORS(NextResponse.json({
+        totalDownloads: user.downloads || 0,
+        recentResources: cleanRecent,
+        bookmarkedResources: cleanBookmarked,
+        trendingResources: cleanTrending
+      }))
+    }
+
+    if (route === '/dashboard/admin' && method === 'GET') {
+      // Check authentication
+      const authHeader = request.headers.get('Authorization')
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return handleCORS(NextResponse.json(
+          { error: "Authentication required" }, 
+          { status: 401 }
+        ))
+      }
+
+      const token = authHeader.substring(7)
+      const decoded = verifyToken(token)
+      
+      if (!decoded) {
+        return handleCORS(NextResponse.json(
+          { error: "Invalid token" }, 
+          { status: 401 }
+        ))
+      }
+
+      const user = await database.collection('users').findOne({ id: decoded.userId })
+      if (!user || user.role !== 'admin') {
+        return handleCORS(NextResponse.json(
+          { error: "Admin access required" }, 
+          { status: 403 }
+        ))
+      }
+
+      // Get total uploaded resources count by this admin
+      const totalUploads = await database.collection('resources').countDocuments({ uploadedBy: user.id })
+
+      // Get last 5 uploads by this admin
+      const recentUploads = await database.collection('resources')
+        .find({ uploadedBy: user.id })
+        .sort({ uploadedAt: -1 })
+        .limit(5)
+        .toArray()
+
+      // For now, pending requests will be empty (placeholder for future feature)
+      const pendingRequests = []
+
+      // Clean MongoDB _id fields
+      const cleanUploads = recentUploads.map(({ _id, ...rest }) => rest)
+
+      return handleCORS(NextResponse.json({
+        totalUploads,
+        recentUploads: cleanUploads,
+        pendingRequests
+      }))
+    }
+
+    // Bookmark endpoints
+    if (route.startsWith('/resources/') && route.endsWith('/bookmark') && method === 'POST') {
+      // Check authentication
+      const authHeader = request.headers.get('Authorization')
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return handleCORS(NextResponse.json(
+          { error: "Authentication required" }, 
+          { status: 401 }
+        ))
+      }
+
+      const token = authHeader.substring(7)
+      const decoded = verifyToken(token)
+      
+      if (!decoded) {
+        return handleCORS(NextResponse.json(
+          { error: "Invalid token" }, 
+          { status: 401 }
+        ))
+      }
+
+      const resourceId = route.split('/')[2]
+      
+      // Check if resource exists
+      const resource = await database.collection('resources').findOne({ id: resourceId })
+      if (!resource) {
+        return handleCORS(NextResponse.json(
+          { error: "Resource not found" }, 
+          { status: 404 }
+        ))
+      }
+
+      const user = await database.collection('users').findOne({ id: decoded.userId })
+      if (!user) {
+        return handleCORS(NextResponse.json(
+          { error: "User not found" }, 
+          { status: 404 }
+        ))
+      }
+
+      let bookmarks = user.bookmarks || []
+      let isBookmarked = bookmarks.includes(resourceId)
+      
+      if (isBookmarked) {
+        // Remove bookmark
+        bookmarks = bookmarks.filter(id => id !== resourceId)
+      } else {
+        // Add bookmark
+        bookmarks.push(resourceId)
+      }
+
+      await database.collection('users').updateOne(
+        { id: decoded.userId },
+        { $set: { bookmarks } }
+      )
+
+      return handleCORS(NextResponse.json({
+        isBookmarked: !isBookmarked,
+        message: isBookmarked ? 'Bookmark removed' : 'Bookmark added'
+      }))
+    }
+
     // Route not found
     return handleCORS(NextResponse.json(
       { error: `Route ${route} not found` }, 
