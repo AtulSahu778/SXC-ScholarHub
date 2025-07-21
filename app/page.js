@@ -619,8 +619,13 @@ export default function App() {
                         <Button 
                           variant="outline" 
                           onClick={() => {
-                            setShowDashboard(!showDashboard)
+                            const newShowDashboard = !showDashboard
+                            setShowDashboard(newShowDashboard)
                             setMobileMenuOpen(false)
+                            // Fetch dashboard data immediately if it's being shown and data doesn't exist
+                            if (newShowDashboard && !dashboardData) {
+                              fetchDashboardData()
+                            }
                           }}
                           className="justify-start h-12"
                         >
