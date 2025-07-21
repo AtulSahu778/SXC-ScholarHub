@@ -13,6 +13,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { BookOpen, Upload, Search, Users, FileText, GraduationCap, Download, Star, Filter, Plus, User, LogOut, Trash2, Instagram, Twitter, Github } from 'lucide-react'
 import Image from 'next/image'
+import { useRouter } from 'next/navigation';
 
 export default function App() {
   const [user, setUser] = useState(null)
@@ -42,6 +43,7 @@ export default function App() {
   ];
 
   const resourcesRef = useRef(null)
+  const router = useRouter();
 
   useEffect(() => {
     fetchResources()
@@ -436,7 +438,11 @@ export default function App() {
                 <>
                   <div className="flex items-center space-x-1 sm:space-x-2">
                     <User className="h-4 w-4" />
-                    <span className="text-xs sm:text-sm font-medium truncate max-w-[80px] sm:max-w-none">{user.name}</span>
+                    <span
+                      className="text-xs sm:text-sm font-medium truncate max-w-[80px] sm:max-w-none"
+                    >
+                      {user.name}
+                    </span>
                     <Badge variant="secondary" className="text-xs">{user.role}</Badge>
                   </div>
                   <Button variant="outline" size="sm" onClick={handleLogout} className="text-xs sm:text-sm px-2 sm:px-3">
