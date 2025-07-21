@@ -856,6 +856,42 @@ export default function App() {
                   </CardContent>
                 </Card>
               </div>
+            ) : !dashboardData ? (
+              <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-3">
+                <Card className="bg-gradient-to-br from-indigo-50 to-indigo-100 dark:from-indigo-900/20 dark:to-indigo-800/20 border-indigo-200 dark:border-indigo-800">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-medium text-indigo-800 dark:text-indigo-300">Loading...</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex items-center space-x-2">
+                      <div className="w-8 h-8 bg-indigo-200 dark:bg-indigo-800/50 rounded animate-pulse" />
+                      <div className="w-12 h-8 bg-indigo-200 dark:bg-indigo-800/50 rounded animate-pulse"></div>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card className="bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-900/20 dark:to-emerald-800/20 border-emerald-200 dark:border-emerald-800">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-medium text-emerald-800 dark:text-emerald-300">Loading...</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex items-center space-x-2">
+                      <div className="w-8 h-8 bg-emerald-200 dark:bg-emerald-800/50 rounded animate-pulse" />
+                      <div className="w-12 h-8 bg-emerald-200 dark:bg-emerald-800/50 rounded animate-pulse"></div>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card className="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 border-orange-200 dark:border-orange-800">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-medium text-orange-800 dark:text-orange-300">Loading...</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex items-center space-x-2">
+                      <div className="w-8 h-8 bg-orange-200 dark:bg-orange-800/50 rounded animate-pulse" />
+                      <div className="w-12 h-8 bg-orange-200 dark:bg-orange-800/50 rounded animate-pulse"></div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
             ) : (
               <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-3">
                 {/* Total Uploads Card */}
