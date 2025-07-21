@@ -506,31 +506,34 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-background dark:to-card transition-colors duration-300">
-      {/* Enhanced Header with Dark Theme */}
+      {/* Enhanced Responsive Header */}
       <header className="bg-white/80 dark:bg-card/80 backdrop-blur-md shadow-sm border-b border-border sticky top-0 z-30 transition-all duration-300">
-        <div className="container mx-auto px-2 sm:px-4 py-3 sm:py-4">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-0">
-            <div className="flex items-center space-x-2">
+        <div className="container mx-auto px-3 sm:px-4 lg:px-6 xl:px-8 py-3 lg:py-4">
+          <div className="flex items-center justify-between">
+            {/* Logo and Title - Responsive */}
+            <div className="flex items-center space-x-2 lg:space-x-3">
               <div className="relative">
                 <Image 
                   src="/sxc-logofinal.png" 
                   alt="SXC ScholarHub Logo" 
-                  width={48} 
-                  height={48} 
-                  className="rounded-full bg-white dark:bg-background shadow-lg transition-shadow duration-300" 
+                  width={40} 
+                  height={40}
+                  className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-full bg-white dark:bg-background shadow-lg transition-shadow duration-300" 
                 />
-                <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-primary to-purple-500 rounded-full animate-pulse"></div>
+                <div className="absolute -top-0.5 -right-0.5 w-3 h-3 lg:w-4 lg:h-4 bg-gradient-to-r from-primary to-purple-500 rounded-full animate-pulse"></div>
               </div>
-              <div>
-                <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-foreground gradient-text">
+              <div className="hidden xs:block">
+                <h1 className="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-bold text-gray-900 dark:text-foreground gradient-text">
                   SXC ScholarHub
                 </h1>
-                <p className="text-xs sm:text-sm text-gray-600 dark:text-muted-foreground">
+                <p className="text-xs sm:text-sm lg:text-base text-gray-600 dark:text-muted-foreground">
                   St. Xavier's College Academic Resources
                 </p>
               </div>
             </div>
-            <div className="flex items-center space-x-2 sm:space-x-4 mt-2 sm:mt-0">
+
+            {/* Desktop Navigation */}
+            <div className="hidden md:flex items-center space-x-2 lg:space-x-4">
               <ThemeToggle />
               {user ? (
                 <>
@@ -538,35 +541,130 @@ export default function App() {
                     variant="outline" 
                     size="sm" 
                     onClick={() => setShowDashboard(!showDashboard)}
-                    className="text-xs sm:text-sm px-2 sm:px-3 hover:bg-primary/10 transition-all duration-200"
+                    className="text-sm lg:text-base px-3 lg:px-4 hover:bg-primary/10 transition-all duration-200"
                   >
-                    <BarChart3 className="h-4 w-4 mr-1 sm:mr-2" />
+                    <BarChart3 className="h-4 w-4 lg:h-5 lg:w-5 mr-2" />
                     Dashboard
                   </Button>
-                  <div className="flex items-center space-x-1 sm:space-x-2">
-                    <User className="h-4 w-4" />
-                    <span className="text-xs sm:text-sm font-medium truncate max-w-[80px] sm:max-w-none">{user.name}</span>
-                    <Badge variant="secondary" className="text-xs">{user.role}</Badge>
+                  <div className="flex items-center space-x-2 lg:space-x-3 px-3 py-1.5 rounded-lg bg-accent/50">
+                    <User className="h-4 w-4 lg:h-5 lg:w-5" />
+                    <div className="flex flex-col">
+                      <span className="text-sm lg:text-base font-medium leading-none">{user.name}</span>
+                      <Badge variant="secondary" className="text-xs mt-0.5 w-fit">{user.role}</Badge>
+                    </div>
                   </div>
                   <Button 
                     variant="outline" 
                     size="sm" 
                     onClick={handleLogout} 
-                    className="text-xs sm:text-sm px-2 sm:px-3 hover:bg-destructive hover:text-destructive-foreground transition-all duration-200"
+                    className="text-sm lg:text-base px-3 lg:px-4 hover:bg-destructive hover:text-destructive-foreground transition-all duration-200"
                   >
-                    <LogOut className="h-4 w-4 mr-1 sm:mr-2" />
+                    <LogOut className="h-4 w-4 lg:h-5 lg:w-5 mr-2" />
                     Logout
                   </Button>
                 </>
               ) : (
                 <Button 
                   onClick={() => setShowLoginModal(true)} 
-                  className="text-xs sm:text-sm px-2 sm:px-3 bg-gradient-to-r from-primary to-purple-500 hover:from-purple-600 hover:to-primary transition-all duration-200"
+                  className="text-sm lg:text-base px-4 lg:px-6 bg-gradient-to-r from-primary to-purple-500 hover:from-purple-600 hover:to-primary transition-all duration-200"
                 >
-                  <User className="h-4 w-4 mr-1 sm:mr-2" />
+                  <User className="h-4 w-4 lg:h-5 lg:w-5 mr-2" />
                   Login
                 </Button>
               )}
+            </div>
+
+            {/* Mobile Menu Button */}
+            <div className="flex md:hidden items-center space-x-2">
+              <ThemeToggle />
+              <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+                <SheetTrigger asChild>
+                  <Button variant="outline" size="sm" className="p-2">
+                    <Menu className="h-5 w-5" />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="right" className="w-[300px] sm:w-[400px]">
+                  <SheetHeader>
+                    <SheetTitle className="flex items-center space-x-2">
+                      <Image 
+                        src="/sxc-logofinal.png" 
+                        alt="SXC ScholarHub Logo" 
+                        width={32} 
+                        height={32}
+                        className="rounded-full" 
+                      />
+                      <span>SXC ScholarHub</span>
+                    </SheetTitle>
+                    <SheetDescription>
+                      Academic Resources Platform
+                    </SheetDescription>
+                  </SheetHeader>
+                  <div className="mt-6 flex flex-col space-y-4">
+                    {user ? (
+                      <>
+                        <div className="flex items-center space-x-3 p-4 rounded-lg bg-accent/50">
+                          <User className="h-8 w-8" />
+                          <div>
+                            <div className="font-medium">{user.name}</div>
+                            <Badge variant="secondary" className="text-xs">{user.role}</Badge>
+                          </div>
+                        </div>
+                        <Button 
+                          variant="outline" 
+                          onClick={() => {
+                            setShowDashboard(!showDashboard)
+                            setMobileMenuOpen(false)
+                          }}
+                          className="justify-start h-12"
+                        >
+                          <BarChart3 className="h-5 w-5 mr-3" />
+                          Dashboard
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          onClick={handleBrowseResources}
+                          className="justify-start h-12"
+                        >
+                          <BookOpen className="h-5 w-5 mr-3" />
+                          Browse Resources
+                        </Button>
+                        {user.role === 'admin' && (
+                          <Button 
+                            variant="outline" 
+                            onClick={() => {
+                              setShowUploadModal(true)
+                              setMobileMenuOpen(false)
+                            }}
+                            className="justify-start h-12"
+                          >
+                            <Upload className="h-5 w-5 mr-3" />
+                            Upload Resource
+                          </Button>
+                        )}
+                        <Button 
+                          variant="outline" 
+                          onClick={handleLogout}
+                          className="justify-start h-12 hover:bg-destructive hover:text-destructive-foreground"
+                        >
+                          <LogOut className="h-5 w-5 mr-3" />
+                          Logout
+                        </Button>
+                      </>
+                    ) : (
+                      <Button 
+                        onClick={() => {
+                          setShowLoginModal(true)
+                          setMobileMenuOpen(false)
+                        }}
+                        className="h-12 bg-gradient-to-r from-primary to-purple-500"
+                      >
+                        <User className="h-5 w-5 mr-3" />
+                        Login / Register
+                      </Button>
+                    )}
+                  </div>
+                </SheetContent>
+              </Sheet>
             </div>
           </div>
         </div>
