@@ -173,6 +173,8 @@ export default function App() {
         setShowLoginModal(false)
         setAlert({ type: 'success', message: 'Login successful!' })
         localStorage.setItem('token', data.token)
+        // Fetch dashboard data after login
+        setTimeout(() => fetchDashboardData(), 100)
       } else {
         setAlert({ type: 'error', message: data.error || 'Login failed' })
       }
