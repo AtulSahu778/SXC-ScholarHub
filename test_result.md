@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Test the comprehensive dark theme implementation for SXC ScholarHub frontend. Focus on theme toggle functionality, dark theme visual testing, interactive components testing, user journey testing, and accessibility & performance."
+user_problem_statement: "Implement Smart Academic Dashboard (Student & Admin) with role-based access control. Student dashboard shows total downloads, recent resources, bookmarks, and trending materials. Admin dashboard shows total uploads, recent uploads, and pending requests. Backend extends User schema with downloads/recentViews/bookmarks tracking and creates dashboard API endpoints."
 
 backend:
   - task: "Authentication System - User Registration"
@@ -393,6 +393,162 @@ backend:
         agent: "testing"
         comment: "✅ Dark theme backend compatibility verified. Comprehensive testing performed after dark theme implementation (CSS changes, ThemeProvider, custom properties, animations). Core Backend Test Results: 9/9 tests passed (100% success rate). All API endpoints working correctly: API Root, User Registration, Role Assignment, User Login, Token Verification, Get Resources, Search Functionality, CORS Headers, Admin-Only Restrictions. The dark theme changes did not break any backend functionality."
 
+  - task: "User Schema Enhancement - Dashboard Tracking"
+    implemented: true
+    working: true
+    file: "app/api/[[...path]]/route.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✅ User registration enhancement working perfectly. New users initialized with downloads: 0, recentViews: [], bookmarks: [] fields for dashboard tracking functionality."
+
+  - task: "Resource Schema Enhancement - Download Tracking"
+    implemented: true
+    working: true
+    file: "app/api/[[...path]]/route.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✅ Resource creation enhancement working correctly. New resources created with downloadCount: 0 for tracking trending materials."
+
+  - task: "Download Tracking System"
+    implemented: true
+    working: true
+    file: "app/api/[[...path]]/route.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✅ Download tracking enhancement working perfectly. Downloads increment user download count, update recentViews list, and increment resource downloadCount for trending analysis."
+
+  - task: "Bookmark Management System"
+    implemented: true
+    working: true
+    file: "app/api/[[...path]]/route.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✅ Bookmark functionality working correctly. POST /api/resources/{id}/bookmark adds/removes bookmarks, returns isBookmarked status, and updates user's bookmarks array."
+
+  - task: "Student Dashboard API Endpoint"
+    implemented: true
+    working: true
+    file: "app/api/[[...path]]/route.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✅ Student dashboard endpoint working perfectly. GET /api/dashboard/student returns totalDownloads, recentResources (from recentViews), bookmarkedResources, and trendingResources (sorted by downloadCount)."
+
+  - task: "Admin Dashboard API Endpoint"
+    implemented: true
+    working: true
+    file: "app/api/[[...path]]/route.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✅ Admin dashboard endpoint working correctly. GET /api/dashboard/admin returns totalUploads, recentUploads (last 5 by admin), and pendingRequests (placeholder for future)."
+
+  - task: "Smart Dashboard - User Registration Enhancement"
+    implemented: true
+    working: true
+    file: "app/api/[[...path]]/route.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✅ User registration enhancement working perfectly. New users are automatically initialized with downloads: 0, recentViews: [], and bookmarks: [] fields. Schema validation confirmed through comprehensive testing."
+
+  - task: "Smart Dashboard - Student Dashboard Endpoint"
+    implemented: true
+    working: true
+    file: "app/api/[[...path]]/route.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✅ Student dashboard endpoint (GET /api/dashboard/student) working perfectly. Returns all required fields: totalDownloads (user's download count), recentResources (based on recentViews), bookmarkedResources (user's bookmarks), and trendingResources (top resources by downloadCount). Requires Bearer token authentication."
+
+  - task: "Smart Dashboard - Admin Dashboard Endpoint"
+    implemented: true
+    working: true
+    file: "app/api/[[...path]]/route.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✅ Admin dashboard endpoint (GET /api/dashboard/admin) working correctly. Returns totalUploads (admin's resource count), recentUploads (last 5 uploads by admin), and pendingRequests (placeholder for future feature). Requires admin role and Bearer token authentication."
+
+  - task: "Smart Dashboard - Bookmark Functionality"
+    implemented: true
+    working: true
+    file: "app/api/[[...path]]/route.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✅ Bookmark functionality (POST /api/resources/{id}/bookmark) working perfectly. Successfully adds/removes bookmarks, returns isBookmarked status and appropriate message. Handles non-existent resources with 404 error. Requires Bearer token authentication."
+
+  - task: "Smart Dashboard - Download Tracking Enhancement"
+    implemented: true
+    working: true
+    file: "app/api/[[...path]]/route.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✅ Download tracking enhancement working excellently. File downloads now: increment user download count, update user's recentViews list (keeps last 5), and increment resource downloadCount. All tracking features verified through comprehensive testing."
+
+  - task: "Smart Dashboard - Resource Creation Enhancement"
+    implemented: true
+    working: true
+    file: "app/api/[[...path]]/route.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✅ Resource creation enhancement working perfectly. New resources are automatically created with downloadCount: 0 field for tracking trending resources. Verified through comprehensive testing."
+
+  - task: "Smart Dashboard - Authentication & Authorization"
+    implemented: true
+    working: true
+    file: "app/api/[[...path]]/route.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✅ Dashboard authentication and authorization working perfectly. All dashboard endpoints require Bearer token authentication (401 for missing tokens). Admin dashboard correctly restricts access to admin users only (403 for students). Bookmark endpoints require authentication."
+
 frontend:
   - task: "Dark Theme Toggle Functionality"
     implemented: true
@@ -526,6 +682,66 @@ frontend:
         agent: "testing"
         comment: "✅ Footer displays perfectly in dark theme. Social media links (Instagram, Twitter, GitHub) have proper dark theme styling. Hover effects work correctly. Footer background and text colors are appropriate for dark theme. All links are functional and visually appealing."
 
+  - task: "Dashboard UI Components - Student View"
+    implemented: true
+    working: true
+    file: "app/page.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "✅ Student dashboard UI implemented with gradient cards showing total downloads, recent resources, bookmarked materials, and trending resources. Responsive design with detailed lists and proper dark theme support."
+
+  - task: "Dashboard UI Components - Admin View"
+    implemented: true
+    working: true
+    file: "app/page.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "✅ Admin dashboard UI implemented with cards showing total uploads, recent uploads, and pending requests. Clean layout with recent uploads list and proper role-based conditional rendering."
+
+  - task: "Bookmark Toggle Functionality"
+    implemented: true
+    working: true
+    file: "app/page.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "✅ Bookmark buttons added to resource cards with bookmark/bookmarkCheck icons. Visual feedback for bookmarked state with yellow highlighting. Toggle functionality integrated with backend bookmark API."
+
+  - task: "Dashboard Toggle Navigation"
+    implemented: true
+    working: true
+    file: "app/page.js"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "✅ Dashboard button added to header with BarChart3 icon. Toggle functionality to show/hide dashboard section. Only visible for logged-in users with proper state management."
+
+  - task: "Dashboard Data Integration"
+    implemented: true
+    working: true
+    file: "app/page.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "✅ Dashboard data fetching integrated with authentication flow. Auto-fetches data on login/registration and dashboard toggle. Proper error handling and loading states."
+
 metadata:
   created_by: "testing_agent"
   version: "1.0"
@@ -534,9 +750,9 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Dark theme implementation fully tested and working"
-    - "All interactive components verified in dark theme"
-    - "Responsive design confirmed across all viewports"
+    - "Smart Dashboard functionality fully tested and working"
+    - "All new dashboard endpoints verified and functional"
+    - "User schema enhancements confirmed working"
   stuck_tasks: []
   test_all: true
   test_priority: "high_first"
@@ -550,3 +766,5 @@ agent_communication:
     message: "DARK THEME BACKEND VERIFICATION COMPLETED: Comprehensive testing performed to verify all existing API endpoints still work correctly after dark theme implementation. Core Backend Test Results: 9/9 tests passed (100% success rate). ✅ API Root Endpoint, ✅ User Registration, ✅ Role Assignment, ✅ User Login, ✅ Token Verification, ✅ Get Resources, ✅ Search Functionality, ✅ CORS Headers, ✅ Admin-Only Restrictions. CONCLUSION: The dark theme implementation (CSS changes, ThemeProvider, custom properties, animations) did not break any backend functionality. All APIs are working correctly and the system is production-ready."
   - agent: "testing"
     message: "🎉 COMPREHENSIVE DARK THEME TESTING COMPLETED SUCCESSFULLY! Tested 11 frontend dark theme tasks with 100% success rate. ✅ Theme Toggle (Light/Dark/System), ✅ Visual Implementation (Professional purple gradient palette), ✅ Interactive Components (All modals, forms, buttons), ✅ User Registration Flow, ✅ Resource Cards Display, ✅ Search & Filter Functionality, ✅ Responsive Design (Desktop/Tablet/Mobile), ✅ Theme Persistence, ✅ Smooth Animations & Transitions, ✅ Accessibility Features, ✅ Footer & Social Links. The dark theme implementation is production-ready with excellent user experience, smooth transitions, and professional styling. No critical issues found. All components work flawlessly in both light and dark themes."
+  - agent: "testing"
+    message: "🚀 SMART ACADEMIC DASHBOARD TESTING COMPLETED SUCCESSFULLY! Comprehensive testing of all new dashboard features completed with 100% success rate. ✅ User Registration Enhancement (downloads: 0, recentViews: [], bookmarks: []), ✅ Dashboard Student Endpoint (totalDownloads, recentResources, bookmarkedResources, trendingResources), ✅ Dashboard Admin Endpoint (totalUploads, recentUploads, pendingRequests), ✅ Bookmark Functionality (add/remove with isBookmarked status), ✅ Download Tracking Enhancement (user downloads, recentViews, resource downloadCount), ✅ Resource Creation Enhancement (downloadCount: 0), ✅ Authentication & Authorization (Bearer token required, admin access control). All Smart Academic Dashboard features are fully functional and production-ready. The implementation includes proper error handling, data validation, and security measures."
