@@ -534,8 +534,9 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Admin-only resource upload functionality fully tested and working"
-    - "All admin authorization and role-based access controls verified"
+    - "Dark theme implementation fully tested and working"
+    - "All interactive components verified in dark theme"
+    - "Responsive design confirmed across all viewports"
   stuck_tasks: []
   test_all: true
   test_priority: "high_first"
