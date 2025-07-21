@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Test the newly implemented Smart Academic Dashboard functionality including user registration enhancement, dashboard endpoints, bookmark functionality, download tracking, and resource creation enhancements."
+user_problem_statement: "Implement Smart Academic Dashboard (Student & Admin) with role-based access control. Student dashboard shows total downloads, recent resources, bookmarks, and trending materials. Admin dashboard shows total uploads, recent uploads, and pending requests. Backend extends User schema with downloads/recentViews/bookmarks tracking and creates dashboard API endpoints."
 
 backend:
   - task: "Authentication System - User Registration"
