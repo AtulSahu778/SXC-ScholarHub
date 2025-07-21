@@ -491,6 +491,8 @@ export default function App() {
       }).then(res => res.json()).then(data => {
         if (data.user) {
           setUser(data.user)
+          // Fetch dashboard data after user verification
+          setTimeout(() => fetchDashboardData(), 100)
         }
       }).catch(() => {
         localStorage.removeItem('token')
