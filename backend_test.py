@@ -12,7 +12,7 @@ import time
 from datetime import datetime
 
 # Configuration
-BASE_URL = "https://753834e2-31a8-4119-a0c0-04a384a471b4.preview.emergentagent.com/api"
+BASE_URL = "https://9e1da29f-09f6-4cef-bd08-f8b7727d7ad1.preview.emergentagent.com/api"
 HEADERS = {"Content-Type": "application/json"}
 
 class ScholarHubAPITester:
