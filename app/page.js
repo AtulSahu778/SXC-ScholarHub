@@ -11,7 +11,8 @@ import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { BookOpen, Upload, Search, Users, FileText, GraduationCap, Download, Star, Filter, Plus, User, LogOut, Trash2, Instagram, Twitter, Github } from 'lucide-react'
+import { ThemeToggle } from '@/components/ui/theme-toggle'
+import { BookOpen, Upload, Search, Users, FileText, GraduationCap, Download, Star, Filter, Plus, User, LogOut, Trash2, Instagram, Twitter, Github, Palette } from 'lucide-react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation';
 
@@ -421,37 +422,55 @@ export default function App() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b sticky top-0 z-30">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-background dark:to-card transition-colors duration-300">
+      {/* Enhanced Header with Dark Theme */}
+      <header className="bg-white/80 dark:bg-card/80 backdrop-blur-md shadow-sm border-b border-border sticky top-0 z-30 transition-all duration-300">
         <div className="container mx-auto px-2 sm:px-4 py-3 sm:py-4">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-0">
             <div className="flex items-center space-x-2">
-              <Image src="/sxc-logofinal.png" alt="SXC ScholarHub Logo" width={48} height={48} className="rounded-full bg-white" />
+              <div className="relative">
+                <Image 
+                  src="/sxc-logofinal.png" 
+                  alt="SXC ScholarHub Logo" 
+                  width={48} 
+                  height={48} 
+                  className="rounded-full bg-white dark:bg-background shadow-lg transition-shadow duration-300" 
+                />
+                <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-primary to-purple-500 rounded-full animate-pulse"></div>
+              </div>
               <div>
-                <h1 className="text-xl sm:text-2xl font-bold text-gray-900">SXC ScholarHub</h1>
-                <p className="text-xs sm:text-sm text-gray-600">St. Xavier's College Academic Resources</p>
+                <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-foreground gradient-text">
+                  SXC ScholarHub
+                </h1>
+                <p className="text-xs sm:text-sm text-gray-600 dark:text-muted-foreground">
+                  St. Xavier's College Academic Resources
+                </p>
               </div>
             </div>
             <div className="flex items-center space-x-2 sm:space-x-4 mt-2 sm:mt-0">
+              <ThemeToggle />
               {user ? (
                 <>
                   <div className="flex items-center space-x-1 sm:space-x-2">
                     <User className="h-4 w-4" />
-                    <span
-                      className="text-xs sm:text-sm font-medium truncate max-w-[80px] sm:max-w-none"
-                    >
-                      {user.name}
-                    </span>
+                    <span className="text-xs sm:text-sm font-medium truncate max-w-[80px] sm:max-w-none">{user.name}</span>
                     <Badge variant="secondary" className="text-xs">{user.role}</Badge>
                   </div>
-                  <Button variant="outline" size="sm" onClick={handleLogout} className="text-xs sm:text-sm px-2 sm:px-3">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={handleLogout} 
+                    className="text-xs sm:text-sm px-2 sm:px-3 hover:bg-destructive hover:text-destructive-foreground transition-all duration-200"
+                  >
                     <LogOut className="h-4 w-4 mr-1 sm:mr-2" />
                     Logout
                   </Button>
                 </>
               ) : (
-                <Button onClick={() => setShowLoginModal(true)} className="text-xs sm:text-sm px-2 sm:px-3">
+                <Button 
+                  onClick={() => setShowLoginModal(true)} 
+                  className="text-xs sm:text-sm px-2 sm:px-3 bg-gradient-to-r from-primary to-purple-500 hover:from-purple-600 hover:to-primary transition-all duration-200"
+                >
                   <User className="h-4 w-4 mr-1 sm:mr-2" />
                   Login
                 </Button>
@@ -461,68 +480,87 @@ export default function App() {
         </div>
       </header>
 
-      {/* Alert */}
+      {/* Enhanced Alert with Dark Theme */}
       {alert && (
-        <div className="container mx-auto px-2 sm:px-4 pt-3 sm:pt-4">
-          <Alert className={`${alert.type === 'error' ? 'bg-red-50 border-red-200' : 'bg-green-50 border-green-200'}`}> 
-            <AlertDescription className={alert.type === 'error' ? 'text-red-800' : 'text-green-800'}>
+        <div className="container mx-auto px-2 sm:px-4 pt-3 sm:pt-4 animate-slide-up">
+          <Alert className={`${
+            alert.type === 'error' 
+              ? 'bg-red-50/80 dark:bg-red-950/20 border-red-200 dark:border-red-800 backdrop-blur-sm' 
+              : 'bg-green-50/80 dark:bg-green-950/20 border-green-200 dark:border-green-800 backdrop-blur-sm'
+          } transition-all duration-300`}> 
+            <AlertDescription className={`${
+              alert.type === 'error' 
+                ? 'text-red-800 dark:text-red-400' 
+                : 'text-green-800 dark:text-green-400'
+            }`}>
               {alert.message}
             </AlertDescription>
           </Alert>
         </div>
       )}
 
-      {/* Main Content */}
+      {/* Enhanced Main Content */}
       <main className="container mx-auto px-2 sm:px-4 py-6 sm:py-8">
-        {/* Hero Section */}
-        <div className="text-center mb-8 sm:mb-12">
-          <h2 className="text-2xl sm:text-4xl font-bold text-gray-900 mb-2 sm:mb-4">
-            Your Academic Resources Hub
-          </h2>
-          <p className="text-base sm:text-xl text-gray-600 mb-4 sm:mb-8">
+        {/* Enhanced Hero Section */}
+        <div className="text-center mb-8 sm:mb-12 animate-fade-in">
+          <div className="relative mb-4">
+            <h2 className="text-2xl sm:text-4xl font-bold text-gray-900 dark:text-foreground mb-2 sm:mb-4 relative">
+              Your Academic Resources Hub
+              <div className="absolute -inset-1 bg-gradient-to-r from-primary/20 to-purple-500/20 blur-2xl -z-10 animate-pulse"></div>
+            </h2>
+          </div>
+          <p className="text-base sm:text-xl text-gray-600 dark:text-muted-foreground mb-4 sm:mb-8 max-w-2xl mx-auto">
             Centralized platform for study materials, previous year papers, and academic assistance
           </p>
           <div className="flex flex-col sm:flex-row justify-center items-center gap-2 sm:space-x-4">
             {user && user.role === 'admin' && (
               <Dialog open={showUploadModal} onOpenChange={setShowUploadModal}>
                 <DialogTrigger asChild>
-                  <Button size="lg" className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700">
+                  <Button 
+                    size="lg" 
+                    className="w-full sm:w-auto bg-gradient-to-r from-primary to-purple-500 hover:from-purple-600 hover:to-primary text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                  >
                     <Upload className="h-5 w-5 mr-2" />
                     Upload Resource
                   </Button>
                 </DialogTrigger>
               </Dialog>
             )}
-            <Button variant="outline" size="lg" className="w-full sm:w-auto" onClick={handleBrowseResources}>
+            <Button 
+              variant="outline" 
+              size="lg" 
+              className="w-full sm:w-auto border-primary/50 hover:bg-primary/10 dark:hover:bg-primary/10 transition-all duration-300 transform hover:scale-105" 
+              onClick={handleBrowseResources}
+            >
               <BookOpen className="h-5 w-5 mr-2" />
               Browse Resources
             </Button>
           </div>
         </div>
 
-        {/* Search and Filter Section */}
-        <div className="bg-white rounded-lg shadow-sm p-3 sm:p-6 mb-6 sm:mb-8 dark:bg-[#1A1829] dark:text-[#F0F2F5]">
+        {/* Enhanced Search and Filter Section */}
+        <div className="bg-white/80 dark:bg-card/80 backdrop-blur-md rounded-xl shadow-sm border border-border p-3 sm:p-6 mb-6 sm:mb-8 animate-scale-in">
           <div className="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-6">
             <div className="md:col-span-2">
-              <Label htmlFor="search">Search Resources</Label>
+              <Label htmlFor="search" className="text-sm font-medium text-foreground">Search Resources</Label>
               <div className="relative">
-                <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400 dark:text-[#A484F0]" />
+                <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="search"
                   placeholder="Search by title, subject, or description..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 text-sm sm:text-base dark:bg-[#23203A] dark:text-[#F0F2F5] dark:placeholder-[#667085]"
+                  className="pl-10 text-sm sm:text-base bg-background/50 dark:bg-background/50 border-border focus:border-primary transition-all duration-200"
                 />
               </div>
             </div>
             <div>
-              <Label htmlFor="department">Department</Label>
+              <Label htmlFor="department" className="text-sm font-medium text-foreground">Department</Label>
               <Select value={filterDepartment} onValueChange={setFilterDepartment}>
-                <SelectTrigger className="text-sm sm:text-base dark:bg-[#23203A] dark:text-[#F0F2F5]">
+                <SelectTrigger className="text-sm sm:text-base bg-background/50 dark:bg-background/50 border-border focus:border-primary">
                   <SelectValue placeholder="All Departments" />
                 </SelectTrigger>
-                <SelectContent className="dark:bg-[#23203A] dark:text-[#F0F2F5]">
+                <SelectContent className="bg-popover/95 dark:bg-popover/95 backdrop-blur-md border-border">
                   <SelectItem value="all">All Departments</SelectItem>
                   {departments.map(dept => (
                     <SelectItem key={dept} value={dept}>{dept}</SelectItem>
@@ -531,12 +569,12 @@ export default function App() {
               </Select>
             </div>
             <div>
-              <Label htmlFor="year">Year</Label>
+              <Label htmlFor="year" className="text-sm font-medium text-foreground">Year</Label>
               <Select value={filterYear} onValueChange={setFilterYear}>
-                <SelectTrigger className="text-sm sm:text-base dark:bg-[#23203A] dark:text-[#F0F2F5]">
+                <SelectTrigger className="text-sm sm:text-base bg-background/50 dark:bg-background/50 border-border focus:border-primary">
                   <SelectValue placeholder="All Years" />
                 </SelectTrigger>
-                <SelectContent className="dark:bg-[#23203A] dark:text-[#F0F2F5]">
+                <SelectContent className="bg-popover/95 dark:bg-popover/95 backdrop-blur-md border-border">
                   <SelectItem value="all">All Years</SelectItem>
                   {years.map(year => (
                     <SelectItem key={year} value={year}>{year}</SelectItem>
@@ -545,12 +583,12 @@ export default function App() {
               </Select>
             </div>
             <div>
-              <Label htmlFor="semester">Semester</Label>
+              <Label htmlFor="semester" className="text-sm font-medium text-foreground">Semester</Label>
               <Select value={filterSemester} onValueChange={setFilterSemester}>
-                <SelectTrigger className="text-sm sm:text-base dark:bg-[#23203A] dark:text-[#F0F2F5]">
+                <SelectTrigger className="text-sm sm:text-base bg-background/50 dark:bg-background/50 border-border focus:border-primary">
                   <SelectValue placeholder="All Semesters" />
                 </SelectTrigger>
-                <SelectContent className="dark:bg-[#23203A] dark:text-[#F0F2F5]">
+                <SelectContent className="bg-popover/95 dark:bg-popover/95 backdrop-blur-md border-border">
                   <SelectItem value="all">All Semesters</SelectItem>
                   {semesters.map(sem => (
                     <SelectItem key={sem} value={sem}>{sem}</SelectItem>
@@ -559,12 +597,12 @@ export default function App() {
               </Select>
             </div>
             <div>
-              <Label htmlFor="type">Type</Label>
+              <Label htmlFor="type" className="text-sm font-medium text-foreground">Type</Label>
               <Select value={filterType} onValueChange={setFilterType}>
-                <SelectTrigger className="text-sm sm:text-base dark:bg-[#23203A] dark:text-[#F0F2F5]">
+                <SelectTrigger className="text-sm sm:text-base bg-background/50 dark:bg-background/50 border-border focus:border-primary">
                   <SelectValue placeholder="All Types" />
                 </SelectTrigger>
-                <SelectContent className="dark:bg-[#23203A] dark:text-[#F0F2F5]">
+                <SelectContent className="bg-popover/95 dark:bg-popover/95 backdrop-blur-md border-border">
                   <SelectItem value="all">All Types</SelectItem>
                   {resourceTypes.map(type => (
                     <SelectItem key={type} value={type}>{type}</SelectItem>
@@ -575,24 +613,36 @@ export default function App() {
           </div>
         </div>
 
-        {/* Resources Grid */}
+        {/* Enhanced Resources Grid */}
         <div ref={resourcesRef} className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
           {filteredResources.map((resource) => (
-            <Card key={resource.id} className="hover:shadow-lg transition-shadow">
+            <Card 
+              key={resource.id} 
+              className="hover:shadow-lg dark:hover:shadow-2xl dark:hover:shadow-primary/10 transition-all duration-300 transform hover:scale-[1.02] bg-card/80 dark:bg-card/80 backdrop-blur-md border-border hover:border-primary/50 group"
+            >
               <CardHeader>
                 <div className="flex flex-col gap-1 sm:flex-row sm:justify-between sm:items-start">
                   <div>
-                    <CardTitle className="text-base sm:text-lg">{resource.title}</CardTitle>
-                    <CardDescription className="text-xs sm:text-sm">{resource.subject}</CardDescription>
+                    <CardTitle className="text-base sm:text-lg text-card-foreground group-hover:text-primary transition-colors duration-200">
+                      {resource.title}
+                    </CardTitle>
+                    <CardDescription className="text-xs sm:text-sm text-muted-foreground">
+                      {resource.subject}
+                    </CardDescription>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Badge variant="outline" className="text-xs sm:text-sm mt-1 sm:mt-0">{resource.type}</Badge>
+                    <Badge 
+                      variant="outline" 
+                      className="text-xs sm:text-sm mt-1 sm:mt-0 border-primary/30 bg-primary/5 text-primary hover:bg-primary/10 transition-colors duration-200"
+                    >
+                      {resource.type}
+                    </Badge>
                     {user && user.role === 'admin' && (
                       <>
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="text-blue-600 hover:bg-blue-100 p-1"
+                          className="text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/30 p-1 transition-all duration-200"
                           title="Edit Resource"
                           onClick={() => handleEditResource(resource)}
                         >
@@ -601,7 +651,7 @@ export default function App() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="text-red-600 hover:bg-red-100 p-1"
+                          className="text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 p-1 transition-all duration-200"
                           title="Delete Resource"
                           onClick={() => { setResourceToDelete(resource); setDeleteDialogOpen(true) }}
                         >
@@ -613,18 +663,24 @@ export default function App() {
                 </div>
               </CardHeader>
               <CardContent>
-                <p className="text-xs sm:text-sm text-gray-600 mb-2 sm:mb-4">{resource.description}</p>
+                <p className="text-xs sm:text-sm text-muted-foreground mb-2 sm:mb-4 line-clamp-2">
+                  {resource.description}
+                </p>
                 <div className="flex flex-wrap gap-1 sm:gap-2 mb-2 sm:mb-4">
-                  <Badge variant="secondary" className="text-xs sm:text-sm">{resource.department}</Badge>
-                  <Badge variant="secondary" className="text-xs sm:text-sm">{resource.year}</Badge>
+                  <Badge variant="secondary" className="text-xs sm:text-sm bg-secondary/50 text-secondary-foreground">
+                    {resource.department}
+                  </Badge>
+                  <Badge variant="secondary" className="text-xs sm:text-sm bg-secondary/50 text-secondary-foreground">
+                    {resource.year}
+                  </Badge>
                   {resource.semester && (
-                    <Badge variant="secondary" className="text-xs sm:text-sm">
+                    <Badge variant="secondary" className="text-xs sm:text-sm bg-secondary/50 text-secondary-foreground">
                       {resource.semester === 'all' ? 'All Semesters' : resource.semester}
                     </Badge>
                   )}
                 </div>
                 <div className="flex flex-col sm:flex-row justify-between items-center gap-2 sm:gap-0">
-                  <div className="text-xs text-gray-500">
+                  <div className="text-xs text-muted-foreground">
                     {new Date(resource.uploadedAt).toLocaleDateString()}
                   </div>
                   {resource.gdriveLink ? (
@@ -632,7 +688,7 @@ export default function App() {
                       href={resource.gdriveLink}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="bg-blue-600 hover:bg-blue-700 w-full sm:w-auto text-xs sm:text-sm px-3 py-2 rounded text-white flex items-center justify-center"
+                      className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 dark:from-blue-500 dark:to-blue-600 dark:hover:from-blue-600 dark:hover:to-blue-700 w-full sm:w-auto text-xs sm:text-sm px-3 py-2 rounded-md text-white flex items-center justify-center transition-all duration-200 transform hover:scale-105 shadow-md hover:shadow-lg"
                     >
                       <Download className="h-4 w-4 mr-1 sm:mr-2" />
                       View on Google Drive
@@ -641,7 +697,7 @@ export default function App() {
                     <Button
                       size="sm"
                       onClick={() => handleDownload(resource)}
-                      className="bg-green-600 hover:bg-green-700 w-full sm:w-auto text-xs sm:text-sm"
+                      className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 dark:from-green-500 dark:to-green-600 dark:hover:from-green-600 dark:hover:to-green-700 w-full sm:w-auto text-xs sm:text-sm transition-all duration-200 transform hover:scale-105 shadow-md hover:shadow-lg"
                     >
                       <Download className="h-4 w-4 mr-1 sm:mr-2" />
                       Download
@@ -654,44 +710,65 @@ export default function App() {
         </div>
 
         {filteredResources.length === 0 && (
-          <div className="text-center py-8 sm:py-12">
-            <FileText className="h-12 w-12 sm:h-16 sm:w-16 text-gray-400 mx-auto mb-2 sm:mb-4" />
-            <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-1 sm:mb-2">No resources found</h3>
-            <p className="text-xs sm:text-base text-gray-500">Try adjusting your search criteria or upload new resources.</p>
+          <div className="text-center py-8 sm:py-12 animate-fade-in">
+            <div className="bg-card/50 dark:bg-card/30 backdrop-blur-md rounded-xl p-8 border border-border">
+              <FileText className="h-12 w-12 sm:h-16 sm:w-16 text-muted-foreground mx-auto mb-2 sm:mb-4" />
+              <h3 className="text-base sm:text-lg font-medium text-foreground mb-1 sm:mb-2">
+                No resources found
+              </h3>
+              <p className="text-xs sm:text-base text-muted-foreground">
+                Try adjusting your search criteria or upload new resources.
+              </p>
+            </div>
           </div>
         )}
       </main>
 
-      {/* Upload Modal */}
+      {/* Upload Modal - Enhanced */}
       <Dialog open={showUploadModal} onOpenChange={setShowUploadModal}>
-        <DialogContent className="w-[95vw] max-w-[95vw] sm:max-w-[500px] p-2 sm:p-6">
+        <DialogContent className="w-[95vw] max-w-[95vw] sm:max-w-[500px] p-2 sm:p-6 bg-card/95 dark:bg-card/95 backdrop-blur-md border-border">
           <DialogHeader>
-            <DialogTitle className="text-base sm:text-lg">Upload Academic Resource</DialogTitle>
-            <DialogDescription className="text-xs sm:text-sm">
+            <DialogTitle className="text-base sm:text-lg text-card-foreground">Upload Academic Resource</DialogTitle>
+            <DialogDescription className="text-xs sm:text-sm text-muted-foreground">
               Share your study materials with fellow students at SXC
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleUpload} className="space-y-3 sm:space-y-4">
             <div>
-              <Label htmlFor="title">Title</Label>
-              <Input id="title" name="title" placeholder="e.g., Data Structures Notes" className="text-sm sm:text-base" />
+              <Label htmlFor="title" className="text-sm font-medium text-foreground">Title</Label>
+              <Input 
+                id="title" 
+                name="title" 
+                placeholder="e.g., Data Structures Notes" 
+                className="text-sm sm:text-base bg-background/50 border-border focus:border-primary transition-colors duration-200" 
+              />
             </div>
             <div>
-              <Label htmlFor="description">Description</Label>
-              <Textarea id="description" name="description" placeholder="Brief description of the resource" className="text-sm sm:text-base" />
+              <Label htmlFor="description" className="text-sm font-medium text-foreground">Description</Label>
+              <Textarea 
+                id="description" 
+                name="description" 
+                placeholder="Brief description of the resource" 
+                className="text-sm sm:text-base bg-background/50 border-border focus:border-primary transition-colors duration-200" 
+              />
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div>
-                <Label htmlFor="subject">Subject</Label>
-                <Input id="subject" name="subject" placeholder="e.g., Computer Science" className="text-sm sm:text-base" />
+                <Label htmlFor="subject" className="text-sm font-medium text-foreground">Subject</Label>
+                <Input 
+                  id="subject" 
+                  name="subject" 
+                  placeholder="e.g., Computer Science" 
+                  className="text-sm sm:text-base bg-background/50 border-border focus:border-primary transition-colors duration-200" 
+                />
               </div>
               <div>
-                <Label htmlFor="department">Department</Label>
+                <Label htmlFor="department" className="text-sm font-medium text-foreground">Department</Label>
                 <Select name="department">
-                  <SelectTrigger className="text-sm sm:text-base">
+                  <SelectTrigger className="text-sm sm:text-base bg-background/50 border-border focus:border-primary">
                     <SelectValue placeholder="Select Department" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-popover/95 backdrop-blur-md border-border">
                     {departments.map(dept => (
                       <SelectItem key={dept} value={dept}>{dept}</SelectItem>
                     ))}
@@ -701,12 +778,12 @@ export default function App() {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div>
-                <Label htmlFor="year">Year</Label>
+                <Label htmlFor="year" className="text-sm font-medium text-foreground">Year</Label>
                 <Select name="year">
-                  <SelectTrigger className="text-sm sm:text-base">
+                  <SelectTrigger className="text-sm sm:text-base bg-background/50 border-border focus:border-primary">
                     <SelectValue placeholder="Select Year" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-popover/95 backdrop-blur-md border-border">
                     {years.map(year => (
                       <SelectItem key={year} value={year}>{year}</SelectItem>
                     ))}
@@ -714,12 +791,12 @@ export default function App() {
                 </Select>
               </div>
               <div>
-                <Label htmlFor="semester">Semester</Label>
+                <Label htmlFor="semester" className="text-sm font-medium text-foreground">Semester</Label>
                 <Select name="semester">
-                  <SelectTrigger className="text-sm sm:text-base dark:bg-[#23203A] dark:text-[#F0F2F5]">
+                  <SelectTrigger className="text-sm sm:text-base bg-background/50 border-border focus:border-primary">
                     <SelectValue placeholder="Select Semester" />
                   </SelectTrigger>
-                  <SelectContent className="dark:bg-[#23203A] dark:text-[#F0F2F5]">
+                  <SelectContent className="bg-popover/95 backdrop-blur-md border-border">
                     <SelectItem value="all">All Semesters</SelectItem>
                     {semesters.map(sem => (
                       <SelectItem key={sem} value={sem}>{sem}</SelectItem>
@@ -729,12 +806,12 @@ export default function App() {
               </div>
             </div>
             <div>
-              <Label htmlFor="type">Type</Label>
+              <Label htmlFor="type" className="text-sm font-medium text-foreground">Type</Label>
               <Select name="type">
-                <SelectTrigger className="text-sm sm:text-base">
+                <SelectTrigger className="text-sm sm:text-base bg-background/50 border-border focus:border-primary">
                   <SelectValue placeholder="Select Type" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-popover/95 backdrop-blur-md border-border">
                   {resourceTypes.map(type => (
                     <SelectItem key={type} value={type}>{type}</SelectItem>
                   ))}
@@ -742,16 +819,39 @@ export default function App() {
               </Select>
             </div>
             <div>
-              <Label htmlFor="file">File</Label>
-              <Input id="file" name="file" type="file" accept=".pdf,.doc,.docx,.ppt,.pptx" className="text-sm sm:text-base" />
-              <div className="text-xs text-gray-500 mt-1">Or provide a Google Drive link below instead of uploading a file.</div>
-              <Input id="gdriveLink" name="gdriveLink" type="url" placeholder="https://drive.google.com/..." className="text-sm sm:text-base mt-2" />
+              <Label htmlFor="file" className="text-sm font-medium text-foreground">File</Label>
+              <Input 
+                id="file" 
+                name="file" 
+                type="file" 
+                accept=".pdf,.doc,.docx,.ppt,.pptx" 
+                className="text-sm sm:text-base bg-background/50 border-border focus:border-primary transition-colors duration-200" 
+              />
+              <div className="text-xs text-muted-foreground mt-1">
+                Or provide a Google Drive link below instead of uploading a file.
+              </div>
+              <Input 
+                id="gdriveLink" 
+                name="gdriveLink" 
+                type="url" 
+                placeholder="https://drive.google.com/..." 
+                className="text-sm sm:text-base mt-2 bg-background/50 border-border focus:border-primary transition-colors duration-200" 
+              />
             </div>
             <div className="flex flex-col sm:flex-row justify-end gap-2">
-              <Button type="button" variant="outline" onClick={() => setShowUploadModal(false)} className="w-full sm:w-auto text-xs sm:text-sm">
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={() => setShowUploadModal(false)} 
+                className="w-full sm:w-auto text-xs sm:text-sm border-border hover:bg-accent transition-colors duration-200"
+              >
                 Cancel
               </Button>
-              <Button type="submit" disabled={loading} className="w-full sm:w-auto text-xs sm:text-sm">
+              <Button 
+                type="submit" 
+                disabled={loading} 
+                className="w-full sm:w-auto text-xs sm:text-sm bg-gradient-to-r from-primary to-purple-500 hover:from-purple-600 hover:to-primary transition-all duration-200"
+              >
                 {loading ? 'Uploading...' : 'Upload Resource'}
               </Button>
             </div>
@@ -759,31 +859,53 @@ export default function App() {
         </DialogContent>
       </Dialog>
 
-      {/* Login/Register Modal */}
+      {/* Login/Register Modal - Enhanced */}
       <Dialog open={showLoginModal} onOpenChange={setShowLoginModal}>
-        <DialogContent className="w-[95vw] max-w-[95vw] sm:max-w-[400px] p-2 sm:p-6">
+        <DialogContent className="w-[95vw] max-w-[95vw] sm:max-w-[400px] p-2 sm:p-6 bg-card/95 dark:bg-card/95 backdrop-blur-md border-border">
           <DialogHeader>
-            <DialogTitle className="text-base sm:text-lg">{isLogin ? 'Login' : 'Register'} to SXC ScholarHub</DialogTitle>
-            <DialogDescription className="text-xs sm:text-sm">
+            <DialogTitle className="text-base sm:text-lg text-card-foreground">
+              {isLogin ? 'Login' : 'Register'} to SXC ScholarHub
+            </DialogTitle>
+            <DialogDescription className="text-xs sm:text-sm text-muted-foreground">
               {isLogin ? 'Sign in to your account' : 'Create a new account'}
             </DialogDescription>
           </DialogHeader>
           <Tabs value={isLogin ? 'login' : 'register'} onValueChange={(value) => setIsLogin(value === 'login')}>
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="login" className="text-xs sm:text-sm">Login</TabsTrigger>
-              <TabsTrigger value="register" className="text-xs sm:text-sm">Register</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-2 bg-muted/50">
+              <TabsTrigger value="login" className="text-xs sm:text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                Login
+              </TabsTrigger>
+              <TabsTrigger value="register" className="text-xs sm:text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                Register
+              </TabsTrigger>
             </TabsList>
             <TabsContent value="login">
               <form onSubmit={handleLogin} className="space-y-3 sm:space-y-4">
                 <div>
-                  <Label htmlFor="email">Email</Label>
-                  <Input id="email" name="email" type="email" required className="text-sm sm:text-base" />
+                  <Label htmlFor="email" className="text-sm font-medium text-foreground">Email</Label>
+                  <Input 
+                    id="email" 
+                    name="email" 
+                    type="email" 
+                    required 
+                    className="text-sm sm:text-base bg-background/50 border-border focus:border-primary transition-colors duration-200" 
+                  />
                 </div>
                 <div>
-                  <Label htmlFor="password">Password</Label>
-                  <Input id="password" name="password" type="password" required className="text-sm sm:text-base" />
+                  <Label htmlFor="password" className="text-sm font-medium text-foreground">Password</Label>
+                  <Input 
+                    id="password" 
+                    name="password" 
+                    type="password" 
+                    required 
+                    className="text-sm sm:text-base bg-background/50 border-border focus:border-primary transition-colors duration-200" 
+                  />
                 </div>
-                <Button type="submit" className="w-full text-xs sm:text-sm" disabled={loading}>
+                <Button 
+                  type="submit" 
+                  className="w-full text-xs sm:text-sm bg-gradient-to-r from-primary to-purple-500 hover:from-purple-600 hover:to-primary transition-all duration-200" 
+                  disabled={loading}
+                >
                   {loading ? 'Logging in...' : 'Login'}
                 </Button>
               </form>
@@ -791,24 +913,41 @@ export default function App() {
             <TabsContent value="register">
               <form onSubmit={handleRegister} className="space-y-3 sm:space-y-4">
                 <div>
-                  <Label htmlFor="name">Full Name</Label>
-                  <Input id="name" name="name" required className="text-sm sm:text-base" />
+                  <Label htmlFor="name" className="text-sm font-medium text-foreground">Full Name</Label>
+                  <Input 
+                    id="name" 
+                    name="name" 
+                    required 
+                    className="text-sm sm:text-base bg-background/50 border-border focus:border-primary transition-colors duration-200" 
+                  />
                 </div>
                 <div>
-                  <Label htmlFor="email">Email</Label>
-                  <Input id="email" name="email" type="email" required className="text-sm sm:text-base" />
+                  <Label htmlFor="email" className="text-sm font-medium text-foreground">Email</Label>
+                  <Input 
+                    id="email" 
+                    name="email" 
+                    type="email" 
+                    required 
+                    className="text-sm sm:text-base bg-background/50 border-border focus:border-primary transition-colors duration-200" 
+                  />
                 </div>
                 <div>
-                  <Label htmlFor="password">Password</Label>
-                  <Input id="password" name="password" type="password" required className="text-sm sm:text-base" />
+                  <Label htmlFor="password" className="text-sm font-medium text-foreground">Password</Label>
+                  <Input 
+                    id="password" 
+                    name="password" 
+                    type="password" 
+                    required 
+                    className="text-sm sm:text-base bg-background/50 border-border focus:border-primary transition-colors duration-200" 
+                  />
                 </div>
                 <div>
-                  <Label htmlFor="department">Department</Label>
+                  <Label htmlFor="department" className="text-sm font-medium text-foreground">Department</Label>
                   <Select name="department" required>
-                    <SelectTrigger className="text-sm sm:text-base">
+                    <SelectTrigger className="text-sm sm:text-base bg-background/50 border-border focus:border-primary">
                       <SelectValue placeholder="Select Department" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="bg-popover/95 backdrop-blur-md border-border">
                       {departments.map(dept => (
                         <SelectItem key={dept} value={dept}>{dept}</SelectItem>
                       ))}
@@ -816,19 +955,23 @@ export default function App() {
                   </Select>
                 </div>
                 <div>
-                  <Label htmlFor="year">Year</Label>
+                  <Label htmlFor="year" className="text-sm font-medium text-foreground">Year</Label>
                   <Select name="year" required>
-                    <SelectTrigger className="text-sm sm:text-base">
+                    <SelectTrigger className="text-sm sm:text-base bg-background/50 border-border focus:border-primary">
                       <SelectValue placeholder="Select Year" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="bg-popover/95 backdrop-blur-md border-border">
                       {years.map(year => (
                         <SelectItem key={year} value={year}>{year}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
-                <Button type="submit" className="w-full text-xs sm:text-sm" disabled={loading}>
+                <Button 
+                  type="submit" 
+                  className="w-full text-xs sm:text-sm bg-gradient-to-r from-primary to-purple-500 hover:from-purple-600 hover:to-primary transition-all duration-200" 
+                  disabled={loading}
+                >
                   {loading ? 'Creating Account...' : 'Create Account'}
                 </Button>
               </form>
@@ -837,55 +980,84 @@ export default function App() {
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation Dialog */}
+      {/* Delete Confirmation Dialog - Enhanced */}
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <DialogContent className="w-[90vw] max-w-[350px]">
+        <DialogContent className="w-[90vw] max-w-[350px] bg-card/95 dark:bg-card/95 backdrop-blur-md border-border">
           <DialogHeader>
-            <DialogTitle className="text-base">Confirm Delete</DialogTitle>
-            <DialogDescription className="text-xs">
-              Are you sure you want to delete <span className="font-semibold">{resourceToDelete?.title}</span>? This action cannot be undone.
+            <DialogTitle className="text-base text-card-foreground">Confirm Delete</DialogTitle>
+            <DialogDescription className="text-xs text-muted-foreground">
+              Are you sure you want to delete <span className="font-semibold text-foreground">{resourceToDelete?.title}</span>? 
+              This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
           <div className="flex justify-end gap-2 mt-4">
-            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)} className="text-xs">Cancel</Button>
-            <Button variant="destructive" onClick={() => handleDeleteResource(resourceToDelete)} disabled={loading} className="text-xs">
+            <Button 
+              variant="outline" 
+              onClick={() => setDeleteDialogOpen(false)} 
+              className="text-xs border-border hover:bg-accent transition-colors duration-200"
+            >
+              Cancel
+            </Button>
+            <Button 
+              variant="destructive" 
+              onClick={() => handleDeleteResource(resourceToDelete)} 
+              disabled={loading} 
+              className="text-xs bg-destructive hover:bg-destructive/90 transition-colors duration-200"
+            >
               {loading ? 'Deleting...' : 'Delete'}
             </Button>
           </div>
         </DialogContent>
       </Dialog>
 
-      {/* Edit Resource Modal */}
+      {/* Edit Resource Modal - Enhanced */}
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
-        <DialogContent className="w-[95vw] max-w-[95vw] sm:max-w-[500px] p-2 sm:p-6 dark:bg-[#1A1829] dark:text-[#F0F2F5]">
+        <DialogContent className="w-[95vw] max-w-[95vw] sm:max-w-[500px] p-2 sm:p-6 bg-card/95 dark:bg-card/95 backdrop-blur-md border-border">
           <DialogHeader>
-            <DialogTitle className="text-base sm:text-lg">Edit Academic Resource</DialogTitle>
-            <DialogDescription className="text-xs sm:text-sm">
+            <DialogTitle className="text-base sm:text-lg text-card-foreground">Edit Academic Resource</DialogTitle>
+            <DialogDescription className="text-xs sm:text-sm text-muted-foreground">
               Update the details of this resource
             </DialogDescription>
           </DialogHeader>
           {resourceToEdit && (
             <form onSubmit={handleEditSubmit} className="space-y-3 sm:space-y-4">
               <div>
-                <Label htmlFor="edit-title">Title</Label>
-                <Input id="edit-title" name="title" defaultValue={resourceToEdit.title} required className="text-sm sm:text-base dark:bg-[#23203A] dark:text-[#F0F2F5]" />
+                <Label htmlFor="edit-title" className="text-sm font-medium text-foreground">Title</Label>
+                <Input 
+                  id="edit-title" 
+                  name="title" 
+                  defaultValue={resourceToEdit.title} 
+                  required 
+                  className="text-sm sm:text-base bg-background/50 border-border focus:border-primary transition-colors duration-200" 
+                />
               </div>
               <div>
-                <Label htmlFor="edit-description">Description</Label>
-                <Textarea id="edit-description" name="description" defaultValue={resourceToEdit.description} className="text-sm sm:text-base dark:bg-[#23203A] dark:text-[#F0F2F5]" />
+                <Label htmlFor="edit-description" className="text-sm font-medium text-foreground">Description</Label>
+                <Textarea 
+                  id="edit-description" 
+                  name="description" 
+                  defaultValue={resourceToEdit.description} 
+                  className="text-sm sm:text-base bg-background/50 border-border focus:border-primary transition-colors duration-200" 
+                />
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
-                  <Label htmlFor="edit-subject">Subject</Label>
-                  <Input id="edit-subject" name="subject" defaultValue={resourceToEdit.subject} required className="text-sm sm:text-base dark:bg-[#23203A] dark:text-[#F0F2F5]" />
+                  <Label htmlFor="edit-subject" className="text-sm font-medium text-foreground">Subject</Label>
+                  <Input 
+                    id="edit-subject" 
+                    name="subject" 
+                    defaultValue={resourceToEdit.subject} 
+                    required 
+                    className="text-sm sm:text-base bg-background/50 border-border focus:border-primary transition-colors duration-200" 
+                  />
                 </div>
                 <div>
-                  <Label htmlFor="edit-department">Department</Label>
+                  <Label htmlFor="edit-department" className="text-sm font-medium text-foreground">Department</Label>
                   <Select name="department" defaultValue={resourceToEdit.department} required>
-                    <SelectTrigger className="text-sm sm:text-base dark:bg-[#23203A] dark:text-[#F0F2F5]">
+                    <SelectTrigger className="text-sm sm:text-base bg-background/50 border-border focus:border-primary">
                       <SelectValue placeholder="Select Department" />
                     </SelectTrigger>
-                    <SelectContent className="dark:bg-[#23203A] dark:text-[#F0F2F5]">
+                    <SelectContent className="bg-popover/95 backdrop-blur-md border-border">
                       {departments.map(dept => (
                         <SelectItem key={dept} value={dept}>{dept}</SelectItem>
                       ))}
@@ -895,12 +1067,12 @@ export default function App() {
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
-                  <Label htmlFor="edit-year">Year</Label>
+                  <Label htmlFor="edit-year" className="text-sm font-medium text-foreground">Year</Label>
                   <Select name="year" defaultValue={resourceToEdit.year} required>
-                    <SelectTrigger className="text-sm sm:text-base dark:bg-[#23203A] dark:text-[#F0F2F5]">
+                    <SelectTrigger className="text-sm sm:text-base bg-background/50 border-border focus:border-primary">
                       <SelectValue placeholder="Select Year" />
                     </SelectTrigger>
-                    <SelectContent className="dark:bg-[#23203A] dark:text-[#F0F2F5]">
+                    <SelectContent className="bg-popover/95 backdrop-blur-md border-border">
                       {years.map(year => (
                         <SelectItem key={year} value={year}>{year}</SelectItem>
                       ))}
@@ -908,12 +1080,12 @@ export default function App() {
                   </Select>
                 </div>
                 <div>
-                  <Label htmlFor="edit-semester">Semester</Label>
+                  <Label htmlFor="edit-semester" className="text-sm font-medium text-foreground">Semester</Label>
                   <Select name="semester" defaultValue={resourceToEdit.semester} required>
-                    <SelectTrigger className="text-sm sm:text-base dark:bg-[#23203A] dark:text-[#F0F2F5]">
+                    <SelectTrigger className="text-sm sm:text-base bg-background/50 border-border focus:border-primary">
                       <SelectValue placeholder="Select Semester" />
                     </SelectTrigger>
-                    <SelectContent className="dark:bg-[#23203A] dark:text-[#F0F2F5]">
+                    <SelectContent className="bg-popover/95 backdrop-blur-md border-border">
                       <SelectItem value="all">All Semesters</SelectItem>
                       {semesters.map(sem => (
                         <SelectItem key={sem} value={sem}>{sem}</SelectItem>
@@ -924,12 +1096,12 @@ export default function App() {
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
-                  <Label htmlFor="edit-type">Type</Label>
+                  <Label htmlFor="edit-type" className="text-sm font-medium text-foreground">Type</Label>
                   <Select name="type" defaultValue={resourceToEdit.type} required>
-                    <SelectTrigger className="text-sm sm:text-base dark:bg-[#23203A] dark:text-[#F0F2F5]">
+                    <SelectTrigger className="text-sm sm:text-base bg-background/50 border-border focus:border-primary">
                       <SelectValue placeholder="Select Type" />
                     </SelectTrigger>
-                    <SelectContent className="dark:bg-[#23203A] dark:text-[#F0F2F5]">
+                    <SelectContent className="bg-popover/95 backdrop-blur-md border-border">
                       {resourceTypes.map(type => (
                         <SelectItem key={type} value={type}>{type}</SelectItem>
                       ))}
@@ -937,20 +1109,44 @@ export default function App() {
                   </Select>
                 </div>
                 <div>
-                  <Label htmlFor="edit-gdriveLink">Google Drive Link</Label>
-                  <Input id="edit-gdriveLink" name="gdriveLink" type="url" defaultValue={resourceToEdit.gdriveLink} placeholder="https://drive.google.com/..." className="text-sm sm:text-base dark:bg-[#23203A] dark:text-[#F0F2F5]" />
+                  <Label htmlFor="edit-gdriveLink" className="text-sm font-medium text-foreground">Google Drive Link</Label>
+                  <Input 
+                    id="edit-gdriveLink" 
+                    name="gdriveLink" 
+                    type="url" 
+                    defaultValue={resourceToEdit.gdriveLink} 
+                    placeholder="https://drive.google.com/..." 
+                    className="text-sm sm:text-base bg-background/50 border-border focus:border-primary transition-colors duration-200" 
+                  />
                 </div>
               </div>
               <div>
-                <Label htmlFor="edit-file">Replace File (optional)</Label>
-                <Input id="edit-file" name="file" type="file" accept=".pdf,.doc,.docx,.ppt,.pptx" className="text-sm sm:text-base dark:bg-[#23203A] dark:text-[#F0F2F5]" />
-                <div className="text-xs text-gray-500 mt-1 dark:text-[#667085]">Leave blank to keep the current file.</div>
+                <Label htmlFor="edit-file" className="text-sm font-medium text-foreground">Replace File (optional)</Label>
+                <Input 
+                  id="edit-file" 
+                  name="file" 
+                  type="file" 
+                  accept=".pdf,.doc,.docx,.ppt,.pptx" 
+                  className="text-sm sm:text-base bg-background/50 border-border focus:border-primary transition-colors duration-200" 
+                />
+                <div className="text-xs text-muted-foreground mt-1">
+                  Leave blank to keep the current file.
+                </div>
               </div>
               <div className="flex flex-col sm:flex-row justify-end gap-2">
-                <Button type="button" variant="outline" onClick={() => setEditDialogOpen(false)} className="w-full sm:w-auto text-xs sm:text-sm">
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={() => setEditDialogOpen(false)} 
+                  className="w-full sm:w-auto text-xs sm:text-sm border-border hover:bg-accent transition-colors duration-200"
+                >
                   Cancel
                 </Button>
-                <Button type="submit" disabled={loading} className="w-full sm:w-auto text-xs sm:text-sm bg-gradient-to-r from-[#7F56D9] to-[#A484F0] text-[#F0F2F5]">
+                <Button 
+                  type="submit" 
+                  disabled={loading} 
+                  className="w-full sm:w-auto text-xs sm:text-sm bg-gradient-to-r from-primary to-purple-500 hover:from-purple-600 hover:to-primary transition-all duration-200"
+                >
                   {loading ? 'Saving...' : 'Save Changes'}
                 </Button>
               </div>
@@ -959,18 +1155,38 @@ export default function App() {
         </DialogContent>
       </Dialog>
 
-      {/* Footer */}
-      <footer className="w-full border-t bg-white mt-8 py-4">
-        <div className="container mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-gray-500">
-          <div>Built by <span className="font-semibold text-gray-700">Atul Sahu</span></div>
+      {/* Enhanced Footer */}
+      <footer className="w-full border-t border-border bg-card/50 dark:bg-card/30 backdrop-blur-md mt-8 py-4">
+        <div className="container mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-muted-foreground">
+          <div>
+            Built by <span className="font-semibold text-foreground">Atul Sahu</span>
+          </div>
           <div className="flex gap-4 items-center">
-            <a href="https://instagram.com/ofc_atul" target="_blank" rel="noopener noreferrer" title="Instagram" className="hover:text-blue-600 flex items-center gap-1">
+            <a 
+              href="https://instagram.com/ofc_atul" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              title="Instagram" 
+              className="hover:text-primary transition-colors duration-200 flex items-center gap-1"
+            >
               <Instagram className="h-4 w-4" /> ofc_atul
             </a>
-            <a href="https://twitter.com/Ofc-atul" target="_blank" rel="noopener noreferrer" title="Twitter" className="hover:text-blue-600 flex items-center gap-1">
+            <a 
+              href="https://twitter.com/Ofc-atul" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              title="Twitter" 
+              className="hover:text-primary transition-colors duration-200 flex items-center gap-1"
+            >
               <Twitter className="h-4 w-4" /> Ofc-atul
             </a>
-            <a href="https://github.com/AtulSahu778" target="_blank" rel="noopener noreferrer" title="GitHub" className="hover:text-blue-600 flex items-center gap-1">
+            <a 
+              href="https://github.com/AtulSahu778" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              title="GitHub" 
+              className="hover:text-primary transition-colors duration-200 flex items-center gap-1"
+            >
               <Github className="h-4 w-4" /> AtulSahu778
             </a>
           </div>
