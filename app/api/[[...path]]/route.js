@@ -187,6 +187,9 @@ async function handleRoute(request, { params }) {
         department,
         year,
         role: userRole,
+        downloads: 0,
+        recentViews: [],
+        bookmarks: [],
         createdAt: new Date().toISOString()
       }
 
