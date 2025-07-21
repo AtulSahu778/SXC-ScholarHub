@@ -540,7 +540,14 @@ export default function App() {
                   <Button 
                     variant="outline" 
                     size="sm" 
-                    onClick={() => setShowDashboard(!showDashboard)}
+                    onClick={() => {
+                      const newShowDashboard = !showDashboard
+                      setShowDashboard(newShowDashboard)
+                      // Fetch dashboard data immediately if it's being shown and data doesn't exist
+                      if (newShowDashboard && !dashboardData) {
+                        fetchDashboardData()
+                      }
+                    }}
                     className="text-sm lg:text-base px-3 lg:px-4 hover:bg-primary/10 transition-all duration-200"
                   >
                     <BarChart3 className="h-4 w-4 lg:h-5 lg:w-5 mr-2" />
