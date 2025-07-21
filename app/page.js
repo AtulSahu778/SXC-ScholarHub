@@ -12,7 +12,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { ThemeToggle } from '@/components/ui/theme-toggle'
-import { BookOpen, Upload, Search, Users, FileText, GraduationCap, Download, Star, Filter, Plus, User, LogOut, Trash2, Instagram, Twitter, Github, Palette, BarChart3, TrendingUp, Bookmark, BookmarkCheck } from 'lucide-react'
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
+import { BookOpen, Upload, Search, Users, FileText, GraduationCap, Download, Star, Filter, Plus, User, LogOut, Trash2, Instagram, Twitter, Github, Palette, BarChart3, TrendingUp, Bookmark, BookmarkCheck, Menu, X } from 'lucide-react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation';
 
@@ -37,6 +38,7 @@ export default function App() {
   const [showDashboard, setShowDashboard] = useState(false)
   const [dashboardData, setDashboardData] = useState(null)
   const [bookmarkedResources, setBookmarkedResources] = useState(new Set())
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   const departments = ['Computer Science', 'Mathematics', 'Physics', 'Chemistry', 'Biology', 'English', 'History', 'Economics']
   const years = ['First Year', 'Second Year', 'Third Year']
@@ -473,12 +475,14 @@ export default function App() {
     setUser(null)
     localStorage.removeItem('token')
     setAlert({ type: 'success', message: 'Logged out successfully' })
+    setMobileMenuOpen(false)
   }
 
   const handleBrowseResources = () => {
     if (resourcesRef.current) {
       resourcesRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
     }
+    setMobileMenuOpen(false)
   }
 
   // Check for existing token on component mount
@@ -502,81 +506,189 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-background dark:to-card transition-colors duration-300">
-      {/* Enhanced Header with Dark Theme */}
+      {/* Enhanced Responsive Header */}
       <header className="bg-white/80 dark:bg-card/80 backdrop-blur-md shadow-sm border-b border-border sticky top-0 z-30 transition-all duration-300">
-        <div className="container mx-auto px-2 sm:px-4 py-3 sm:py-4">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-0">
-            <div className="flex items-center space-x-2">
+        <div className="container mx-auto px-3 sm:px-4 lg:px-6 xl:px-8 py-3 lg:py-4">
+          <div className="flex items-center justify-between">
+            {/* Logo and Title - Responsive */}
+            <div className="flex items-center space-x-2 lg:space-x-3">
               <div className="relative">
                 <Image 
                   src="/sxc-logofinal.png" 
                   alt="SXC ScholarHub Logo" 
-                  width={48} 
-                  height={48} 
-                  className="rounded-full bg-white dark:bg-background shadow-lg transition-shadow duration-300" 
+                  width={40} 
+                  height={40}
+                  className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-full bg-white dark:bg-background shadow-lg transition-shadow duration-300" 
                 />
-                <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-primary to-purple-500 rounded-full animate-pulse"></div>
+                <div className="absolute -top-0.5 -right-0.5 w-3 h-3 lg:w-4 lg:h-4 bg-gradient-to-r from-primary to-purple-500 rounded-full animate-pulse"></div>
               </div>
-              <div>
-                <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-foreground gradient-text">
+              <div className="hidden xs:block">
+                <h1 className="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-bold text-gray-900 dark:text-foreground gradient-text">
                   SXC ScholarHub
                 </h1>
-                <p className="text-xs sm:text-sm text-gray-600 dark:text-muted-foreground">
+                <p className="text-xs sm:text-sm lg:text-base text-gray-600 dark:text-muted-foreground">
                   St. Xavier's College Academic Resources
                 </p>
               </div>
             </div>
-            <div className="flex items-center space-x-2 sm:space-x-4 mt-2 sm:mt-0">
+
+            {/* Desktop Navigation */}
+            <div className="hidden md:flex items-center space-x-2 lg:space-x-4">
               <ThemeToggle />
               {user ? (
                 <>
                   <Button 
                     variant="outline" 
                     size="sm" 
-                    onClick={() => setShowDashboard(!showDashboard)}
-                    className="text-xs sm:text-sm px-2 sm:px-3 hover:bg-primary/10 transition-all duration-200"
+                    onClick={() => {
+                      const newShowDashboard = !showDashboard
+                      setShowDashboard(newShowDashboard)
+                      // Fetch dashboard data immediately if it's being shown and data doesn't exist
+                      if (newShowDashboard && !dashboardData) {
+                        fetchDashboardData()
+                      }
+                    }}
+                    className="text-sm lg:text-base px-3 lg:px-4 hover:bg-primary/10 transition-all duration-200"
                   >
-                    <BarChart3 className="h-4 w-4 mr-1 sm:mr-2" />
+                    <BarChart3 className="h-4 w-4 lg:h-5 lg:w-5 mr-2" />
                     Dashboard
                   </Button>
-                  <div className="flex items-center min-w-0 gap-x-2">
-                    <User className="h-4 w-4 flex-shrink-0" />
-                    <span className="text-xs sm:text-sm font-medium truncate max-w-[100px] sm:max-w-[160px]">{user.name}</span>
-                    <Badge variant="secondary" className="text-xs flex-shrink-0">{user.role}</Badge>
+                  <div className="flex items-center space-x-1 sm:space-x-2">
+                    <User className="h-4 w-4" />
+                    <span className="text-xs sm:text-sm font-medium truncate max-w-[80px] sm:max-w-none">{user.name}</span>
+                    <Badge variant="secondary" className="text-xs">{user.role}</Badge>
                   </div>
                   <Button 
                     variant="outline" 
                     size="sm" 
                     onClick={handleLogout} 
-                    className="text-xs sm:text-sm px-2 sm:px-3 hover:bg-destructive hover:text-destructive-foreground transition-all duration-200"
+                    className="text-sm lg:text-base px-3 lg:px-4 hover:bg-destructive hover:text-destructive-foreground transition-all duration-200"
                   >
-                    <LogOut className="h-4 w-4 mr-1 sm:mr-2" />
+                    <LogOut className="h-4 w-4 lg:h-5 lg:w-5 mr-2" />
                     Logout
                   </Button>
                 </>
               ) : (
                 <Button 
                   onClick={() => setShowLoginModal(true)} 
-                  className="text-xs sm:text-sm px-2 sm:px-3 bg-gradient-to-r from-primary to-purple-500 hover:from-purple-600 hover:to-primary transition-all duration-200"
+                  className="text-sm lg:text-base px-4 lg:px-6 bg-gradient-to-r from-primary to-purple-500 hover:from-purple-600 hover:to-primary transition-all duration-200"
                 >
-                  <User className="h-4 w-4 mr-1 sm:mr-2" />
+                  <User className="h-4 w-4 lg:h-5 lg:w-5 mr-2" />
                   Login
                 </Button>
               )}
+            </div>
+
+            {/* Mobile Menu Button */}
+            <div className="flex md:hidden items-center space-x-2">
+              <ThemeToggle />
+              <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+                <SheetTrigger asChild>
+                  <Button variant="outline" size="sm" className="p-2">
+                    <Menu className="h-5 w-5" />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="right" className="w-[300px] sm:w-[400px]">
+                  <SheetHeader>
+                    <SheetTitle className="flex items-center space-x-2">
+                      <Image 
+                        src="/sxc-logofinal.png" 
+                        alt="SXC ScholarHub Logo" 
+                        width={32} 
+                        height={32}
+                        className="rounded-full" 
+                      />
+                      <span>SXC ScholarHub</span>
+                    </SheetTitle>
+                    <SheetDescription>
+                      Academic Resources Platform
+                    </SheetDescription>
+                  </SheetHeader>
+                  <div className="mt-6 flex flex-col space-y-4">
+                    {user ? (
+                      <>
+                        <div className="flex items-center space-x-3 p-4 rounded-lg bg-accent/50">
+                          <User className="h-8 w-8" />
+                          <div>
+                            <div className="font-medium">{user.name}</div>
+                            <Badge variant="secondary" className="text-xs">{user.role}</Badge>
+                          </div>
+                        </div>
+                        <Button 
+                          variant="outline" 
+                          onClick={() => {
+                            const newShowDashboard = !showDashboard
+                            setShowDashboard(newShowDashboard)
+                            setMobileMenuOpen(false)
+                            // Fetch dashboard data immediately if it's being shown and data doesn't exist
+                            if (newShowDashboard && !dashboardData) {
+                              fetchDashboardData()
+                            }
+                          }}
+                          className="justify-start h-12"
+                        >
+                          <BarChart3 className="h-5 w-5 mr-3" />
+                          Dashboard
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          onClick={handleBrowseResources}
+                          className="justify-start h-12"
+                        >
+                          <BookOpen className="h-5 w-5 mr-3" />
+                          Browse Resources
+                        </Button>
+                        {user.role === 'admin' && (
+                          <Button 
+                            variant="outline" 
+                            onClick={() => {
+                              setShowUploadModal(true)
+                              setMobileMenuOpen(false)
+                            }}
+                            className="justify-start h-12"
+                          >
+                            <Upload className="h-5 w-5 mr-3" />
+                            Upload Resource
+                          </Button>
+                        )}
+                        <Button 
+                          variant="outline" 
+                          onClick={handleLogout}
+                          className="justify-start h-12 hover:bg-destructive hover:text-destructive-foreground"
+                        >
+                          <LogOut className="h-5 w-5 mr-3" />
+                          Logout
+                        </Button>
+                      </>
+                    ) : (
+                      <Button 
+                        onClick={() => {
+                          setShowLoginModal(true)
+                          setMobileMenuOpen(false)
+                        }}
+                        className="h-12 bg-gradient-to-r from-primary to-purple-500"
+                      >
+                        <User className="h-5 w-5 mr-3" />
+                        Login / Register
+                      </Button>
+                    )}
+                  </div>
+                </SheetContent>
+              </Sheet>
             </div>
           </div>
         </div>
       </header>
 
-      {/* Enhanced Alert with Dark Theme */}
+      {/* Enhanced Alert - Responsive */}
       {alert && (
-        <div className="container mx-auto px-2 sm:px-4 pt-3 sm:pt-4 animate-slide-up">
+        <div className="container mx-auto px-3 sm:px-4 lg:px-6 xl:px-8 pt-3 sm:pt-4 animate-slide-up">
           <Alert className={`${
             alert.type === 'error' 
               ? 'bg-red-50/80 dark:bg-red-950/20 border-red-200 dark:border-red-800 backdrop-blur-sm' 
               : 'bg-green-50/80 dark:bg-green-950/20 border-green-200 dark:border-green-800 backdrop-blur-sm'
           } transition-all duration-300`}> 
-            <AlertDescription className={`${
+            <AlertDescription className={`text-sm lg:text-base ${
               alert.type === 'error' 
                 ? 'text-red-800 dark:text-red-400' 
                 : 'text-green-800 dark:text-green-400'
@@ -587,28 +699,28 @@ export default function App() {
         </div>
       )}
 
-      {/* Enhanced Main Content */}
-      <main className="container mx-auto px-2 sm:px-4 py-6 sm:py-8">
-        {/* Enhanced Hero Section */}
-        <div className="text-center mb-8 sm:mb-12 animate-fade-in">
-          <div className="relative mb-4">
-            <h2 className="text-2xl sm:text-4xl font-bold text-gray-900 dark:text-foreground mb-2 sm:mb-4 relative">
+      {/* Enhanced Main Content - Ultra Responsive */}
+      <main className="container mx-auto px-3 sm:px-4 lg:px-6 xl:px-8 py-6 lg:py-8 xl:py-12 max-w-8xl">
+        {/* Enhanced Hero Section - Fully Responsive */}
+        <div className="text-center mb-8 lg:mb-12 xl:mb-16 animate-fade-in">
+          <div className="relative mb-4 lg:mb-6">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl font-bold text-gray-900 dark:text-foreground mb-2 lg:mb-4 relative leading-tight">
               Your Academic Resources Hub
               <div className="absolute -inset-1 bg-gradient-to-r from-primary/20 to-purple-500/20 blur-2xl -z-10 animate-pulse"></div>
             </h2>
           </div>
-          <p className="text-base sm:text-xl text-gray-600 dark:text-muted-foreground mb-4 sm:mb-8 max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl text-gray-600 dark:text-muted-foreground mb-6 lg:mb-8 xl:mb-12 max-w-2xl lg:max-w-4xl xl:max-w-6xl mx-auto leading-relaxed">
             Centralized platform for study materials, previous year papers, and academic assistance
           </p>
-          <div className="flex flex-col sm:flex-row justify-center items-center gap-2 sm:space-x-4">
+          <div className="flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-4 lg:gap-6">
             {user && user.role === 'admin' && (
               <Dialog open={showUploadModal} onOpenChange={setShowUploadModal}>
                 <DialogTrigger asChild>
                   <Button 
                     size="lg" 
-                    className="w-full sm:w-auto bg-gradient-to-r from-primary to-purple-500 hover:from-purple-600 hover:to-primary text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                    className="w-full sm:w-auto text-sm sm:text-base lg:text-lg px-6 lg:px-8 py-3 lg:py-4 bg-gradient-to-r from-primary to-purple-500 hover:from-purple-600 hover:to-primary text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
                   >
-                    <Upload className="h-5 w-5 mr-2" />
+                    <Upload className="h-5 w-5 lg:h-6 lg:w-6 mr-2 lg:mr-3" />
                     Upload Resource
                   </Button>
                 </DialogTrigger>
@@ -617,23 +729,70 @@ export default function App() {
             <Button 
               variant="outline" 
               size="lg" 
-              className="w-full sm:w-auto border-primary/50 hover:bg-primary/10 dark:hover:bg-primary/10 transition-all duration-300 transform hover:scale-105" 
+              className="w-full sm:w-auto text-sm sm:text-base lg:text-lg px-6 lg:px-8 py-3 lg:py-4 border-primary/50 hover:bg-primary/10 dark:hover:bg-primary/10 transition-all duration-300 transform hover:scale-105" 
               onClick={handleBrowseResources}
             >
-              <BookOpen className="h-5 w-5 mr-2" />
+              <BookOpen className="h-5 w-5 lg:h-6 lg:w-6 mr-2 lg:mr-3" />
               Browse Resources
             </Button>
           </div>
         </div>
 
         {/* Smart Academic Dashboard */}
-        {user && showDashboard && dashboardData && (
+        {user && showDashboard && (
           <div className="mb-8 sm:mb-12 animate-fade-in">
             <h3 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-foreground mb-4 sm:mb-6">
               {user.role === 'admin' ? 'Admin Dashboard' : 'Student Dashboard'}
             </h3>
             
-            {user.role === 'student' ? (
+            {!dashboardData ? (
+              <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-4">
+                <Card className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 border-blue-200 dark:border-blue-800">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-medium text-blue-800 dark:text-blue-300">Loading...</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex items-center space-x-2">
+                      <div className="w-8 h-8 bg-blue-200 dark:bg-blue-800/50 rounded animate-pulse" />
+                      <div className="w-12 h-8 bg-blue-200 dark:bg-blue-800/50 rounded animate-pulse"></div>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 border-green-200 dark:border-green-800">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-medium text-green-800 dark:text-green-300">Loading...</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex items-center space-x-2">
+                      <div className="w-8 h-8 bg-green-200 dark:bg-green-800/50 rounded animate-pulse" />
+                      <div className="w-12 h-8 bg-green-200 dark:bg-green-800/50 rounded animate-pulse"></div>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card className="bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-yellow-900/20 dark:to-yellow-800/20 border-yellow-200 dark:border-yellow-800">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-medium text-yellow-800 dark:text-yellow-300">Loading...</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex items-center space-x-2">
+                      <div className="w-8 h-8 bg-yellow-200 dark:bg-yellow-800/50 rounded animate-pulse" />
+                      <div className="w-12 h-8 bg-yellow-200 dark:bg-yellow-800/50 rounded animate-pulse"></div>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 border-purple-200 dark:border-purple-800">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-medium text-purple-800 dark:text-purple-300">Loading...</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex items-center space-x-2">
+                      <div className="w-8 h-8 bg-purple-200 dark:bg-purple-800/50 rounded animate-pulse" />
+                      <div className="w-12 h-8 bg-purple-200 dark:bg-purple-800/50 rounded animate-pulse"></div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            ) : user.role === 'student' ? (
               <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-4">
                 {/* Total Downloads Card */}
                 <Card className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 border-blue-200 dark:border-blue-800 hover:shadow-lg transition-all duration-300">
@@ -691,6 +850,42 @@ export default function App() {
                       <div className="text-2xl font-bold text-purple-900 dark:text-purple-100">
                         {dashboardData.trendingResources?.length || 0}
                       </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            ) : !dashboardData ? (
+              <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-3">
+                <Card className="bg-gradient-to-br from-indigo-50 to-indigo-100 dark:from-indigo-900/20 dark:to-indigo-800/20 border-indigo-200 dark:border-indigo-800">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-medium text-indigo-800 dark:text-indigo-300">Loading...</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex items-center space-x-2">
+                      <div className="w-8 h-8 bg-indigo-200 dark:bg-indigo-800/50 rounded animate-pulse" />
+                      <div className="w-12 h-8 bg-indigo-200 dark:bg-indigo-800/50 rounded animate-pulse"></div>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card className="bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-900/20 dark:to-emerald-800/20 border-emerald-200 dark:border-emerald-800">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-medium text-emerald-800 dark:text-emerald-300">Loading...</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex items-center space-x-2">
+                      <div className="w-8 h-8 bg-emerald-200 dark:bg-emerald-800/50 rounded animate-pulse" />
+                      <div className="w-12 h-8 bg-emerald-200 dark:bg-emerald-800/50 rounded animate-pulse"></div>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card className="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 border-orange-200 dark:border-orange-800">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-medium text-orange-800 dark:text-orange-300">Loading...</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex items-center space-x-2">
+                      <div className="w-8 h-8 bg-orange-200 dark:bg-orange-800/50 rounded animate-pulse" />
+                      <div className="w-12 h-8 bg-orange-200 dark:bg-orange-800/50 rounded animate-pulse"></div>
                     </div>
                   </CardContent>
                 </Card>
@@ -828,7 +1023,7 @@ export default function App() {
             )}
 
             {/* Admin Lists */}
-            {user.role === 'admin' && dashboardData.recentUploads && dashboardData.recentUploads.length > 0 && (
+            {user.role === 'admin' && dashboardData && dashboardData.recentUploads && dashboardData.recentUploads.length > 0 && (
               <Card className="bg-card/80 dark:bg-card/80 backdrop-blur-md border-border mt-6">
                 <CardHeader>
                   <CardTitle className="text-base sm:text-lg flex items-center">
