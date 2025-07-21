@@ -63,9 +63,79 @@ export default function App() {
       if (response.ok) {
         const data = await response.json()
         setResources(data)
+        
+        // Update bookmarked resources set if user is logged in
+        if (user) {
+          fetchDashboardData()
+        }
       }
     } catch (error) {
       console.error('Error fetching resources:', error)
+    }
+  }
+
+  const fetchDashboardData = async () => {
+    if (!user) return
+    
+    const token = localStorage.getItem('token')
+    if (!token) return
+
+    try {
+      const endpoint = user.role === 'admin' ? '/api/dashboard/admin' : '/api/dashboard/student'
+      const response = await fetch(endpoint, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+      
+      if (response.ok) {
+        const data = await response.json()
+        setDashboardData(data)
+        
+        // Update bookmarked resources set for students
+        if (user.role === 'student' && data.bookmarkedResources) {
+          const bookmarkedIds = new Set(data.bookmarkedResources.map(r => r.id))
+          setBookmarkedResources(bookmarkedIds)
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error)
+    }
+  }
+
+  const handleBookmark = async (resourceId) => {
+    const token = localStorage.getItem('token')
+    if (!token) {
+      setAlert({ type: 'error', message: 'Please login to bookmark resources.' })
+      return
+    }
+
+    try {
+      const response = await fetch(`/api/resources/${resourceId}/bookmark`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+      
+      if (response.ok) {
+        const data = await response.json()
+        
+        // Update bookmarked resources set
+        const newBookmarks = new Set(bookmarkedResources)
+        if (data.isBookmarked) {
+          newBookmarks.add(resourceId)
+        } else {
+          newBookmarks.delete(resourceId)
+        }
+        setBookmarkedResources(newBookmarks)
+        
+        // Refresh dashboard data
+        fetchDashboardData()
+        
+        setAlert({ type: 'success', message: data.message })
+      } else {
+        const errorData = await response.json()
+        setAlert({ type: 'error', message: errorData.error || 'Bookmark failed' })
+      }
+    } catch (error) {
+      setAlert({ type: 'error', message: 'Bookmark failed. Please try again.' })
     }
   }
 
