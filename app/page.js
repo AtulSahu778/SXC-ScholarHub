@@ -21,6 +21,15 @@ import { useIsClient, useIsMobile, useSafeAsync } from '@/hooks/useClientSafe'
 import { DashboardErrorBoundary } from '@/components/DashboardErrorBoundary'
 
 export default function App() {
+  // Client-side safety hooks
+  const isClient = useIsClient()
+  const isMobile = useIsMobile()
+  const { mounted, safeSetState } = useSafeAsync()
+
+  // Safe localStorage for token
+  const [token, setToken, removeToken] = useSafeLocalStorage('token', null)
+
+  // Regular state management
   const [user, setUser] = useState(null)
   const [resources, setResources] = useState([])
   const [filteredResources, setFilteredResources] = useState([])
@@ -30,18 +39,21 @@ export default function App() {
   const [filterDepartment, setFilterDepartment] = useState('all')
   const [filterYear, setFilterYear] = useState('all')
   const [filterType, setFilterType] = useState('all')
-  const [filterSemester, setFilterSemester] = useState('all');
+  const [filterSemester, setFilterSemester] = useState('all')
   const [showUploadModal, setShowUploadModal] = useState(false)
   const [showLoginModal, setShowLoginModal] = useState(false)
   const [isLogin, setIsLogin] = useState(true)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [resourceToDelete, setResourceToDelete] = useState(null)
-  const [editDialogOpen, setEditDialogOpen] = useState(false);
-  const [resourceToEdit, setResourceToEdit] = useState(null);
+  const [editDialogOpen, setEditDialogOpen] = useState(false)
+  const [resourceToEdit, setResourceToEdit] = useState(null)
   const [showDashboard, setShowDashboard] = useState(false)
   const [dashboardData, setDashboardData] = useState(null)
   const [bookmarkedResources, setBookmarkedResources] = useState(new Set())
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  
+  // Mobile-specific error handling
+  const [mobileError, setMobileError] = useState(null)
 
   const departments = ['Computer Science', 'Mathematics', 'Physics', 'Chemistry', 'Biology', 'English', 'History', 'Economics']
   const years = ['First Year', 'Second Year', 'Third Year']
@@ -49,10 +61,20 @@ export default function App() {
   const semesters = [
     'Semester 1', 'Semester 2', 'Semester 3', 'Semester 4',
     'Semester 5', 'Semester 6', 'Semester 7', 'Semester 8'
-  ];
+  ]
 
   const resourcesRef = useRef(null)
-  const router = useRouter();
+  const router = useRouter()
+  
+  // Mobile error handler
+  const handleMobileError = (error) => {
+    console.error('Mobile error:', error)
+    if (isMobile) {
+      setMobileError(error.message || 'An error occurred on mobile device')
+      // Auto-clear mobile error after 5 seconds
+      setTimeout(() => setMobileError(null), 5000)
+    }
+  }
 
   useEffect(() => {
     fetchResources()
