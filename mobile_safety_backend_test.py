@@ -18,8 +18,8 @@ import uuid
 import time
 from datetime import datetime
 
-# Configuration - Use the external URL from .env
-BASE_URL = "https://753834e2-31a8-4119-a0c0-04a384a471b4.preview.emergentagent.ai/api"
+# Configuration - Use localhost for internal testing
+BASE_URL = "http://localhost:3000/api"
 HEADERS = {"Content-Type": "application/json"}
 
 class MobileSafetyBackendTester:
