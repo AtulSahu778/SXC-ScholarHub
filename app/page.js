@@ -91,9 +91,14 @@ export default function App() {
         const data = await response.json()
         setResources(data)
         
-        // Update bookmarked resources set if user is logged inn
-        if (user) {
-          fetchDashboardData()
+        // Load bookmarks for logged in students after resources are loaded
+        if (user && user.role === 'student') {
+          // Use a slight delay to ensure user state is stable
+          setTimeout(() => {
+            if (mounted) {
+              loadBookmarks()
+            }
+          }, 100)
         }
       }
     } catch (error) {
