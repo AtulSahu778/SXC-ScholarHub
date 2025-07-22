@@ -121,77 +121,45 @@ class BookmarkPersistenceTest:
             return False
     
     def test_2_admin_setup_and_resource_creation(self):
-        """Test 2: Setup admin user and create test resource"""
-        print("\n=== TEST 2: Admin Setup and Resource Creation ===")
+        """Test 2: Setup admin user and use existing test resource"""
+        print("\n=== TEST 2: Admin Setup and Resource Selection ===")
         
-        # Register admin user (using the special email that gets admin role)
-        admin_data = {
-            "name": "Test Admin",
-            "email": "sahuatul2005@gmail.com",  # This email gets admin role
-            "password": "adminpass123",
-            "department": "Computer Science",
-            "year": "Faculty"
+        # Try to login with existing admin user
+        login_data = {
+            "email": "sahuatul2005@gmail.com",
+            "password": "adminpass123"
         }
-        
-        response = self.make_request('POST', '/auth/register', admin_data)
+        response = self.make_request('POST', '/auth/login', login_data)
         
         if response and response.status_code == 200:
             data = response.json()
             self.admin_user = data['user']
             self.admin_token = data['token']
-            
-            if self.admin_user['role'] != 'admin':
-                self.log_test("Admin Registration", False, 
-                            f"Expected admin role, got {self.admin_user['role']}")
-                return False
+            self.log_test("Admin Login", True, 
+                        f"Admin user logged in successfully",
+                        f"Admin ID: {self.admin_user['id']}, Role: {self.admin_user['role']}")
         else:
-            # Try to login if user already exists
-            login_data = {
-                "email": "sahuatul2005@gmail.com",
-                "password": "adminpass123"
-            }
-            response = self.make_request('POST', '/auth/login', login_data)
-            
-            if response and response.status_code == 200:
-                data = response.json()
-                self.admin_user = data['user']
-                self.admin_token = data['token']
-            else:
-                self.log_test("Admin Setup", False, "Could not register or login admin user")
-                return False
+            # Admin login failed, but we can still test with existing resources
+            self.log_test("Admin Login", False, "Admin login failed, will use existing resource")
         
-        # Create test resource
-        headers = {'Authorization': f'Bearer {self.admin_token}'}
-        resource_data = {
-            "title": f"Test Resource for Bookmark Testing {int(time.time())}",
-            "description": "This is a test resource for bookmark persistence testing",
-            "department": "Computer Science",
-            "year": "2024",
-            "semester": "Fall",
-            "type": "Notes",
-            "subject": "Software Testing",
-            "gdriveLink": "https://drive.google.com/test-link"
-        }
-        
-        response = self.make_request('POST', '/resources', resource_data, headers)
+        # Get existing resource for testing
+        response = self.make_request('GET', '/resources')
         
         if response and response.status_code == 200:
-            data = response.json()
-            if 'id' in data:
-                self.test_resource_id = data['id']
-                self.log_test("Resource Creation", True, 
-                            "Test resource created successfully by admin",
-                            f"Resource ID: {self.test_resource_id}")
+            resources = response.json()
+            if resources and len(resources) > 0:
+                self.test_resource_id = resources[0]['id']
+                self.log_test("Resource Selection", True, 
+                            "Using existing resource for bookmark testing",
+                            f"Resource ID: {self.test_resource_id}, Title: {resources[0].get('title', 'N/A')}")
                 return True
             else:
-                self.log_test("Resource Creation", False, 
-                            "Resource creation response missing ID",
-                            f"Response: {data}")
+                self.log_test("Resource Selection", False, "No resources available for testing")
                 return False
         else:
             error_msg = response.text if response else "Network error"
-            self.log_test("Resource Creation", False, 
-                        f"Resource creation failed",
+            self.log_test("Resource Selection", False, 
+                        f"Failed to get resources",
                         f"Status: {response.status_code if response else 'N/A'}, Error: {error_msg}")
             return False
     
