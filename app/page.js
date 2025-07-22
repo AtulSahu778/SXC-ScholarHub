@@ -845,22 +845,38 @@ export default function App() {
         </div>
       </header>
 
-      {/* Enhanced Alert - Responsive */}
-      {alert && (
+      {/* Enhanced Alert - Responsive with Mobile Error Handling */}
+      {(alert || mobileError) && (
         <div className="container mx-auto px-3 sm:px-4 lg:px-6 xl:px-8 pt-3 sm:pt-4 animate-slide-up">
-          <Alert className={`${
-            alert.type === 'error' 
-              ? 'bg-red-50/80 dark:bg-red-950/20 border-red-200 dark:border-red-800 backdrop-blur-sm' 
-              : 'bg-green-50/80 dark:bg-green-950/20 border-green-200 dark:border-green-800 backdrop-blur-sm'
-          } transition-all duration-300`}> 
-            <AlertDescription className={`text-sm lg:text-base ${
+          {alert && (
+            <Alert className={`mb-2 ${
               alert.type === 'error' 
-                ? 'text-red-800 dark:text-red-400' 
-                : 'text-green-800 dark:text-green-400'
-            }`}>
-              {alert.message}
-            </AlertDescription>
-          </Alert>
+                ? 'bg-red-50/80 dark:bg-red-950/20 border-red-200 dark:border-red-800 backdrop-blur-sm' 
+                : 'bg-green-50/80 dark:bg-green-950/20 border-green-200 dark:border-green-800 backdrop-blur-sm'
+            } transition-all duration-300`}> 
+              <AlertDescription className={`text-sm lg:text-base ${
+                alert.type === 'error' 
+                  ? 'text-red-800 dark:text-red-400' 
+                  : 'text-green-800 dark:text-green-400'
+              }`}>
+                {alert.message}
+              </AlertDescription>
+            </Alert>
+          )}
+          {mobileError && (
+            <Alert className="bg-orange-50/80 dark:bg-orange-950/20 border-orange-200 dark:border-orange-800 backdrop-blur-sm transition-all duration-300">
+              <AlertDescription className="text-sm lg:text-base text-orange-800 dark:text-orange-400 flex items-center justify-between">
+                <span>📱 Mobile: {mobileError}</span>
+                <button 
+                  onClick={() => setMobileError(null)}
+                  className="ml-2 text-orange-600 hover:text-orange-800 dark:text-orange-400 dark:hover:text-orange-200"
+                  aria-label="Close mobile error"
+                >
+                  ×
+                </button>
+              </AlertDescription>
+            </Alert>
+          )}
         </div>
       )}
 
