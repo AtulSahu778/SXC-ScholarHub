@@ -26,6 +26,12 @@ export async function POST(request: NextRequest) {
     const { spawn } = require('child_process')
     
     return new Promise((resolve) => {
+      // Pass environment variables to subprocess
+      const env = {
+        ...process.env,
+        GEMINI_API_KEY: process.env.GEMINI_API_KEY
+      }
+      
       const python = spawn('python3', ['-c', `
 import sys
 import json
