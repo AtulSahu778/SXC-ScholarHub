@@ -1038,7 +1038,7 @@ export default function App() {
                     <div className="flex items-center space-x-2">
                       <Download className="h-8 w-8 text-blue-600 dark:text-blue-400" />
                       <div className="text-2xl font-bold text-blue-900 dark:text-blue-100">
-                        {dashboardData.totalDownloads}
+                        {dashboardData?.totalDownloads ?? 0}
                       </div>
                     </div>
                   </CardContent>
@@ -1053,7 +1053,7 @@ export default function App() {
                     <div className="flex items-center space-x-2">
                       <FileText className="h-8 w-8 text-green-600 dark:text-green-400" />
                       <div className="text-2xl font-bold text-green-900 dark:text-green-100">
-                        {dashboardData.recentResources?.length || 0}
+                        {dashboardData?.recentResources?.length || 0}
                       </div>
                     </div>
                   </CardContent>
@@ -1068,7 +1068,7 @@ export default function App() {
                     <div className="flex items-center space-x-2">
                       <BookmarkCheck className="h-8 w-8 text-yellow-600 dark:text-yellow-400" />
                       <div className="text-2xl font-bold text-yellow-900 dark:text-yellow-100">
-                        {dashboardData.bookmarkedResources?.length || 0}
+                        {dashboardData?.bookmarkedResources?.length || 0}
                       </div>
                     </div>
                   </CardContent>
@@ -1083,7 +1083,7 @@ export default function App() {
                     <div className="flex items-center space-x-2">
                       <TrendingUp className="h-8 w-8 text-purple-600 dark:text-purple-400" />
                       <div className="text-2xl font-bold text-purple-900 dark:text-purple-100">
-                        {dashboardData.trendingResources?.length || 0}
+                        {dashboardData?.trendingResources?.length || 0}
                       </div>
                     </div>
                   </CardContent>
@@ -1151,7 +1151,7 @@ export default function App() {
                     <div className="flex items-center space-x-2">
                       <FileText className="h-8 w-8 text-emerald-600 dark:text-emerald-400" />
                       <div className="text-2xl font-bold text-emerald-900 dark:text-emerald-100">
-                        {dashboardData.recentUploads?.length || 0}
+                        {dashboardData?.recentUploads?.length || 0}
                       </div>
                     </div>
                   </CardContent>
@@ -1166,7 +1166,7 @@ export default function App() {
                     <div className="flex items-center space-x-2">
                       <Users className="h-8 w-8 text-orange-600 dark:text-orange-400" />
                       <div className="text-2xl font-bold text-orange-900 dark:text-orange-100">
-                        {dashboardData.pendingRequests?.length || 0}
+                        {dashboardData?.pendingRequests?.length || 0}
                       </div>
                     </div>
                   </CardContent>
@@ -1178,7 +1178,7 @@ export default function App() {
             {user.role === 'student' && (
               <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 mt-6">
                 {/* Recent Resources List */}
-                {dashboardData.recentResources && dashboardData.recentResources.length > 0 && (
+                {dashboardData?.recentResources && dashboardData.recentResources.length > 0 && (
                   <Card className="bg-card/80 dark:bg-card/80 backdrop-blur-md border-border">
                     <CardHeader>
                       <CardTitle className="text-base sm:text-lg flex items-center">
@@ -1203,7 +1203,7 @@ export default function App() {
                 )}
 
                 {/* Bookmarked Resources List */}
-                {dashboardData.bookmarkedResources && dashboardData.bookmarkedResources.length > 0 && (
+                {dashboardData?.bookmarkedResources && dashboardData.bookmarkedResources.length > 0 && (
                   <Card className="bg-card/80 dark:bg-card/80 backdrop-blur-md border-border">
                     <CardHeader>
                       <CardTitle className="text-base sm:text-lg flex items-center">
@@ -1228,7 +1228,7 @@ export default function App() {
                 )}
 
                 {/* Trending Resources List */}
-                {dashboardData.trendingResources && dashboardData.trendingResources.length > 0 && (
+                {dashboardData?.trendingResources && dashboardData.trendingResources.length > 0 && (
                   <Card className="bg-card/80 dark:bg-card/80 backdrop-blur-md border-border md:col-span-2">
                     <CardHeader>
                       <CardTitle className="text-base sm:text-lg flex items-center">
@@ -1258,7 +1258,7 @@ export default function App() {
             )}
 
             {/* Admin Lists */}
-            {user.role === 'admin' && dashboardData && dashboardData.recentUploads && dashboardData.recentUploads.length > 0 && (
+            {user.role === 'admin' && dashboardData?.recentUploads && dashboardData.recentUploads.length > 0 && (
               <Card className="bg-card/80 dark:bg-card/80 backdrop-blur-md border-border mt-6">
                 <CardHeader>
                   <CardTitle className="text-base sm:text-lg flex items-center">
