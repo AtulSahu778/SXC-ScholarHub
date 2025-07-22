@@ -597,10 +597,19 @@ export default function App() {
   };
 
   const handleLogout = () => {
-    setUser(null)
-    localStorage.removeItem('token')
+    safeSetState(() => {
+      setUser(null)
+      setDashboardData(null)
+      setBookmarkedResources(new Set())
+      setShowDashboard(false)
+      setMobileMenuOpen(false)
+      setMobileError(null)
+    })
+    
+    // Safe token removal
+    removeToken()
+    
     setAlert({ type: 'success', message: 'Logged out successfully' })
-    setMobileMenuOpen(false)
   }
 
   const handleBrowseResources = () => {
