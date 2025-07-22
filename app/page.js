@@ -102,29 +102,54 @@ export default function App() {
   }
 
   const fetchDashboardData = async () => {
-    if (!user) return
+    if (!user || !isClient || !mounted) return
     
-    const token = localStorage.getItem('token')
+    // Use safe token access
     if (!token) return
 
     try {
       const endpoint = user.role === 'admin' ? '/api/dashboard/admin' : '/api/dashboard/student'
+      
+      // Add timeout for mobile devices to prevent hanging requests
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), isMobile ? 10000 : 15000)
+      
       const response = await fetch(endpoint, {
-        headers: { 'Authorization': `Bearer ${token}` }
+        headers: { 'Authorization': `Bearer ${token}` },
+        signal: controller.signal
       })
+      
+      clearTimeout(timeoutId)
       
       if (response.ok) {
         const data = await response.json()
-        setDashboardData(data)
         
-        // Update bookmarked resources set for students
-        if (user.role === 'student' && data.bookmarkedResources) {
-          const bookmarkedIds = new Set(data.bookmarkedResources.map(r => r.id))
-          setBookmarkedResources(bookmarkedIds)
-        }
+        // Safe state update
+        safeSetState(() => {
+          setDashboardData(data)
+          
+          // Update bookmarked resources set for students
+          if (user.role === 'student' && data.bookmarkedResources) {
+            const bookmarkedIds = new Set(data.bookmarkedResources.map(r => r.id))
+            setBookmarkedResources(bookmarkedIds)
+          }
+        })
+      } else if (response.status === 401) {
+        // Token expired, clear it
+        removeToken()
+        setUser(null)
+        setAlert({ type: 'error', message: 'Session expired. Please login again.' })
       }
     } catch (error) {
-      console.error('Error fetching dashboard data:', error)
+      if (error.name === 'AbortError') {
+        console.warn('Dashboard fetch aborted (likely due to timeout)')
+        if (isMobile) {
+          setMobileError('Dashboard loading timed out. Please try again.')
+        }
+      } else {
+        console.error('Error fetching dashboard data:', error)
+        handleMobileError(error)
+      }
     }
   }
 
