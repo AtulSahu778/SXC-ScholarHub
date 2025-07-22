@@ -708,6 +708,20 @@ export default function App() {
     verifyToken()
   }, [isClient, token, mounted, isMobile])
 
+  // Load bookmarks whenever user state changes (specifically for student users)
+  useEffect(() => {
+    if (!user || !isClient || !mounted) return
+    
+    // Load bookmarks for students after user state is set
+    if (user.role === 'student') {
+      setTimeout(() => {
+        if (mounted) {
+          loadBookmarks()
+        }
+      }, 200) // Small delay to ensure state is stable
+    }
+  }, [user, isClient, mounted])
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-background dark:to-card transition-colors duration-300">
       {/* Enhanced Responsive Header */}
