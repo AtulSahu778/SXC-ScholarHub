@@ -287,34 +287,61 @@ export default function App() {
 
   const handleRegister = async (e) => {
     e.preventDefault()
+    if (!isClient || !mounted) return
+    
     setLoading(true)
-    const formData = new FormData(e.target)
-    const email = formData.get('email')
-    const password = formData.get('password')
-    const name = formData.get('name')
-    const department = formData.get('department')
-    const year = formData.get('year')
-
     try {
+      const formData = new FormData(e.target)
+      const email = formData.get('email')
+      const password = formData.get('password')
+      const name = formData.get('name')
+      const department = formData.get('department')
+      const year = formData.get('year')
+
+      // Add timeout for mobile devices
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), isMobile ? 12000 : 15000)
+
       const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, name, department, year })
+        body: JSON.stringify({ email, password, name, department, year }),
+        signal: controller.signal
       })
 
+      clearTimeout(timeoutId)
       const data = await response.json()
+      
       if (response.ok) {
-        setUser(data.user)
-        setShowLoginModal(false)
-        setAlert({ type: 'success', message: 'Registration successful!' })
-        localStorage.setItem('token', data.token)
-        // Fetch dashboard data after registration
-        setTimeout(() => fetchDashboardData(), 100)
+        safeSetState(() => {
+          setUser(data.user)
+          setShowLoginModal(false)
+          setAlert({ type: 'success', message: 'Registration successful!' })
+          
+          // Safe token storage
+          setToken(data.token)
+          
+          // Clear mobile error
+          setMobileError(null)
+        })
+        
+        // Fetch dashboard data after registration with delay for mobile
+        setTimeout(() => {
+          if (mounted) {
+            fetchDashboardData()
+          }
+        }, isMobile ? 300 : 100)
       } else {
         setAlert({ type: 'error', message: data.error || 'Registration failed' })
       }
     } catch (error) {
-      setAlert({ type: 'error', message: 'Network error. Please try again.' })
+      if (error.name === 'AbortError') {
+        setAlert({ type: 'error', message: 'Registration timed out. Please try again.' })
+      } else {
+        console.error('Registration error:', error)
+        handleMobileError(error)
+        setAlert({ type: 'error', message: 'Network error. Please try again.' })
+      }
     } finally {
       setLoading(false)
     }
