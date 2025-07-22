@@ -101,6 +101,40 @@ export default function App() {
     }
   }
 
+  // Separate function to load and sync bookmark state
+  const loadBookmarks = async () => {
+    if (!user || !isClient || !mounted || !token) return
+    
+    try {
+      // Add timeout for mobile devices to prevent hanging requests
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), isMobile ? 8000 : 10000)
+      
+      const response = await fetch('/api/dashboard/student', {
+        headers: { 'Authorization': `Bearer ${token}` },
+        signal: controller.signal
+      })
+      
+      clearTimeout(timeoutId)
+      
+      if (response.ok) {
+        const data = await response.json()
+        
+        // Update bookmarked resources set based on API data
+        if (data.bookmarkedResources) {
+          const bookmarkedIds = new Set(data.bookmarkedResources.map(r => r.id))
+          setBookmarkedResources(bookmarkedIds)
+        } else {
+          setBookmarkedResources(new Set())
+        }
+      }
+    } catch (error) {
+      if (error.name !== 'AbortError') {
+        console.error('Error loading bookmarks:', error)
+      }
+    }
+  }
+
   const fetchDashboardData = async () => {
     if (!user || !isClient || !mounted) return
     
@@ -128,7 +162,7 @@ export default function App() {
         safeSetState(() => {
           setDashboardData(data)
           
-          // Update bookmarked resources set for students
+          // Always update bookmarked resources set for students (not just when showing dashboard)
           if (user.role === 'student' && data.bookmarkedResources) {
             const bookmarkedIds = new Set(data.bookmarkedResources.map(r => r.id))
             setBookmarkedResources(bookmarkedIds)
