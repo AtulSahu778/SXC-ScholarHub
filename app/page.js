@@ -228,31 +228,58 @@ export default function App() {
 
   const handleLogin = async (e) => {
     e.preventDefault()
+    if (!isClient || !mounted) return
+    
     setLoading(true)
-    const formData = new FormData(e.target)
-    const email = formData.get('email')
-    const password = formData.get('password')
-
     try {
+      const formData = new FormData(e.target)
+      const email = formData.get('email')
+      const password = formData.get('password')
+
+      // Add timeout for mobile devices
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), isMobile ? 12000 : 15000)
+
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify({ email, password }),
+        signal: controller.signal
       })
 
+      clearTimeout(timeoutId)
       const data = await response.json()
+      
       if (response.ok) {
-        setUser(data.user)
-        setShowLoginModal(false)
-        setAlert({ type: 'success', message: 'Login successful!' })
-        localStorage.setItem('token', data.token)
-        // Fetch dashboard data after login
-        setTimeout(() => fetchDashboardData(), 100)
+        safeSetState(() => {
+          setUser(data.user)
+          setShowLoginModal(false)
+          setAlert({ type: 'success', message: 'Login successful!' })
+          
+          // Safe token storage
+          setToken(data.token)
+          
+          // Clear mobile error
+          setMobileError(null)
+        })
+        
+        // Fetch dashboard data after login with delay for mobile
+        setTimeout(() => {
+          if (mounted) {
+            fetchDashboardData()
+          }
+        }, isMobile ? 300 : 100)
       } else {
         setAlert({ type: 'error', message: data.error || 'Login failed' })
       }
     } catch (error) {
-      setAlert({ type: 'error', message: 'Network error. Please try again.' })
+      if (error.name === 'AbortError') {
+        setAlert({ type: 'error', message: 'Login timed out. Please try again.' })
+      } else {
+        console.error('Login error:', error)
+        handleMobileError(error)
+        setAlert({ type: 'error', message: 'Network error. Please try again.' })
+      }
     } finally {
       setLoading(false)
     }
