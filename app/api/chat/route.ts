@@ -67,7 +67,7 @@ async def chat_with_gemini():
 # Run the async function
 result = asyncio.run(chat_with_gemini())
 print(json.dumps(result))
-`])
+`], { env })
 
       let output = ''
       let errorOutput = ''
