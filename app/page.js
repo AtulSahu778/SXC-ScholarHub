@@ -1216,6 +1216,7 @@ export default function App() {
               </Card>
             )}
           </div>
+          </DashboardErrorBoundary>
         )}
 
         {/* Enhanced Search and Filter Section */}
