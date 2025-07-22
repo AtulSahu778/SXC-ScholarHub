@@ -121,12 +121,6 @@ The app will be available at [(https://sxchub.vercel.app/)].
 ## Testing
 - Backend API and new dashboard features are tested and verified (see `test_result.md`).
 - Frontend dark theme, dashboard, and bookmark functionality are tested and production-ready.
-
----
-
-## License
-MIT License. See [LICENSE](LICENSE) for details.
-
 ---
 
 ## Credits
