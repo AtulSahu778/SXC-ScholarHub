@@ -154,40 +154,61 @@ export default function App() {
   }
 
   const handleBookmark = async (resourceId) => {
-    const token = localStorage.getItem('token')
-    if (!token) {
+    if (!token || !isClient || !mounted) {
       setAlert({ type: 'error', message: 'Please login to bookmark resources.' })
       return
     }
 
     try {
+      // Add timeout for mobile devices
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), isMobile ? 8000 : 10000)
+
       const response = await fetch(`/api/resources/${resourceId}/bookmark`, {
         method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` }
+        headers: { 'Authorization': `Bearer ${token}` },
+        signal: controller.signal
       })
+      
+      clearTimeout(timeoutId)
       
       if (response.ok) {
         const data = await response.json()
         
-        // Update bookmarked resources set
-        const newBookmarks = new Set(bookmarkedResources)
-        if (data.isBookmarked) {
-          newBookmarks.add(resourceId)
-        } else {
-          newBookmarks.delete(resourceId)
-        }
-        setBookmarkedResources(newBookmarks)
+        // Safe state update
+        safeSetState(() => {
+          // Update bookmarked resources set
+          const newBookmarks = new Set(bookmarkedResources)
+          if (data.isBookmarked) {
+            newBookmarks.add(resourceId)
+          } else {
+            newBookmarks.delete(resourceId)
+          }
+          setBookmarkedResources(newBookmarks)
+          
+          setAlert({ type: 'success', message: data.message })
+        })
         
         // Refresh dashboard data
-        fetchDashboardData()
-        
-        setAlert({ type: 'success', message: data.message })
+        if (user && showDashboard) {
+          setTimeout(() => fetchDashboardData(), 100)
+        }
+      } else if (response.status === 401) {
+        removeToken()
+        setUser(null)
+        setAlert({ type: 'error', message: 'Session expired. Please login again.' })
       } else {
         const errorData = await response.json()
         setAlert({ type: 'error', message: errorData.error || 'Bookmark failed' })
       }
     } catch (error) {
-      setAlert({ type: 'error', message: 'Bookmark failed. Please try again.' })
+      if (error.name === 'AbortError') {
+        setAlert({ type: 'error', message: 'Request timed out. Please try again.' })
+      } else {
+        console.error('Bookmark error:', error)
+        handleMobileError(error)
+        setAlert({ type: 'error', message: 'Bookmark failed. Please try again.' })
+      }
     }
   }
 
