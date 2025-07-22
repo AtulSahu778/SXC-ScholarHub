@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
         GEMINI_API_KEY: process.env.GEMINI_API_KEY
       }
       
-      const python = spawn('python3', ['-c', `
+      const python = spawn('/root/.venv/bin/python3', ['-c', `
 import sys
 import json
 import asyncio
