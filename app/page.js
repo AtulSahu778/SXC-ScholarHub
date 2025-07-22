@@ -619,24 +619,55 @@ export default function App() {
     setMobileMenuOpen(false)
   }
 
-  // Check for existing token on component mount
+  // Check for existing token on component mount - Mobile Safe
   useEffect(() => {
-    const token = localStorage.getItem('token')
-    if (token) {
-      // Verify token and get user info
-      fetch('/api/auth/verify', {
-        headers: { 'Authorization': `Bearer ${token}` }
-      }).then(res => res.json()).then(data => {
-        if (data.user) {
-          setUser(data.user)
-          // Fetch dashboard data after user verification
-          setTimeout(() => fetchDashboardData(), 100)
+    if (!isClient || !mounted) return
+    
+    const verifyToken = async () => {
+      if (!token) return
+      
+      try {
+        // Add timeout for mobile devices
+        const controller = new AbortController()
+        const timeoutId = setTimeout(() => controller.abort(), isMobile ? 8000 : 10000)
+        
+        const response = await fetch('/api/auth/verify', {
+          headers: { 'Authorization': `Bearer ${token}` },
+          signal: controller.signal
+        })
+        
+        clearTimeout(timeoutId)
+        
+        if (response.ok) {
+          const data = await response.json()
+          if (data.user && mounted) {
+            setUser(data.user)
+            setMobileError(null)
+            // Fetch dashboard data after user verification with mobile delay
+            setTimeout(() => {
+              if (mounted) {
+                fetchDashboardData()
+              }
+            }, isMobile ? 300 : 100)
+          }
+        } else {
+          // Token is invalid, remove it
+          removeToken()
         }
-      }).catch(() => {
-        localStorage.removeItem('token')
-      })
+      } catch (error) {
+        if (error.name === 'AbortError') {
+          console.warn('Token verification aborted (likely due to timeout)')
+        } else {
+          console.error('Token verification error:', error)
+          handleMobileError(error)
+        }
+        // Remove invalid token
+        removeToken()
+      }
     }
-  }, [])
+    
+    verifyToken()
+  }, [isClient, token, mounted, isMobile])
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-background dark:to-card transition-colors duration-300">
