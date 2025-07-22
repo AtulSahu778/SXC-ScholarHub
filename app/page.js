@@ -15,7 +15,10 @@ import { ThemeToggle } from '@/components/ui/theme-toggle'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 import { BookOpen, Upload, Search, Users, FileText, GraduationCap, Download, Star, Filter, Plus, User, LogOut, Trash2, Instagram, Twitter, Github, Palette, BarChart3, TrendingUp, Bookmark, BookmarkCheck, Menu, X } from 'lucide-react'
 import Image from 'next/image'
-import { useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation'
+import { useSafeLocalStorage } from '@/hooks/useSafeLocalStorage'
+import { useIsClient, useIsMobile, useSafeAsync } from '@/hooks/useClientSafe'
+import { DashboardErrorBoundary } from '@/components/DashboardErrorBoundary'
 
 export default function App() {
   const [user, setUser] = useState(null)
