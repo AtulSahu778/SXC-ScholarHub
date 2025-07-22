@@ -903,60 +903,61 @@ export default function App() {
           </div>
         </div>
 
-        {/* Smart Academic Dashboard */}
+        {/* Smart Academic Dashboard with Error Boundary for Mobile Safety */}
         {user && showDashboard && (
-          <div className="mb-8 sm:mb-12 animate-fade-in">
-            <h3 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-foreground mb-4 sm:mb-6">
-              {user.role === 'admin' ? 'Admin Dashboard' : 'Student Dashboard'}
-            </h3>
-            
-            {!dashboardData ? (
-              <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-4">
-                <Card className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 border-blue-200 dark:border-blue-800">
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-medium text-blue-800 dark:text-blue-300">Loading...</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex items-center space-x-2">
-                      <div className="w-8 h-8 bg-blue-200 dark:bg-blue-800/50 rounded animate-pulse" />
-                      <div className="w-12 h-8 bg-blue-200 dark:bg-blue-800/50 rounded animate-pulse"></div>
-                    </div>
-                  </CardContent>
-                </Card>
-                <Card className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 border-green-200 dark:border-green-800">
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-medium text-green-800 dark:text-green-300">Loading...</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex items-center space-x-2">
-                      <div className="w-8 h-8 bg-green-200 dark:bg-green-800/50 rounded animate-pulse" />
-                      <div className="w-12 h-8 bg-green-200 dark:bg-green-800/50 rounded animate-pulse"></div>
-                    </div>
-                  </CardContent>
-                </Card>
-                <Card className="bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-yellow-900/20 dark:to-yellow-800/20 border-yellow-200 dark:border-yellow-800">
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-medium text-yellow-800 dark:text-yellow-300">Loading...</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex items-center space-x-2">
-                      <div className="w-8 h-8 bg-yellow-200 dark:bg-yellow-800/50 rounded animate-pulse" />
-                      <div className="w-12 h-8 bg-yellow-200 dark:bg-yellow-800/50 rounded animate-pulse"></div>
-                    </div>
-                  </CardContent>
-                </Card>
-                <Card className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 border-purple-200 dark:border-purple-800">
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-medium text-purple-800 dark:text-purple-300">Loading...</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex items-center space-x-2">
-                      <div className="w-8 h-8 bg-purple-200 dark:bg-purple-800/50 rounded animate-pulse" />
-                      <div className="w-12 h-8 bg-purple-200 dark:bg-purple-800/50 rounded animate-pulse"></div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
+          <DashboardErrorBoundary>
+            <div className="mb-8 sm:mb-12 animate-fade-in">
+              <h3 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-foreground mb-4 sm:mb-6">
+                {user.role === 'admin' ? 'Admin Dashboard' : 'Student Dashboard'}
+              </h3>
+              
+              {!dashboardData ? (
+                <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-4">
+                  <Card className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 border-blue-200 dark:border-blue-800">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm font-medium text-blue-800 dark:text-blue-300">Loading...</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="flex items-center space-x-2">
+                        <div className="w-8 h-8 bg-blue-200 dark:bg-blue-800/50 rounded animate-pulse" />
+                        <div className="w-12 h-8 bg-blue-200 dark:bg-blue-800/50 rounded animate-pulse"></div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 border-green-200 dark:border-green-800">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm font-medium text-green-800 dark:text-green-300">Loading...</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="flex items-center space-x-2">
+                        <div className="w-8 h-8 bg-green-200 dark:bg-green-800/50 rounded animate-pulse" />
+                        <div className="w-12 h-8 bg-green-200 dark:bg-green-800/50 rounded animate-pulse"></div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card className="bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-yellow-900/20 dark:to-yellow-800/20 border-yellow-200 dark:border-yellow-800">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm font-medium text-yellow-800 dark:text-yellow-300">Loading...</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="flex items-center space-x-2">
+                        <div className="w-8 h-8 bg-yellow-200 dark:bg-yellow-800/50 rounded animate-pulse" />
+                        <div className="w-12 h-8 bg-yellow-200 dark:bg-yellow-800/50 rounded animate-pulse"></div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 border-purple-200 dark:border-purple-800">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm font-medium text-purple-800 dark:text-purple-300">Loading...</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="flex items-center space-x-2">
+                        <div className="w-8 h-8 bg-purple-200 dark:bg-purple-800/50 rounded animate-pulse" />
+                        <div className="w-12 h-8 bg-purple-200 dark:bg-purple-800/50 rounded animate-pulse"></div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
             ) : user.role === 'student' ? (
               <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-4">
                 {/* Total Downloads Card */}
