@@ -1478,6 +1478,30 @@ export default function App() {
           ))}
         </div>
 
+        {/* View All / Show Less Button */}
+        {hasMoreResources && (
+          <div className="flex justify-center mt-8 sm:mt-10 lg:mt-12 animate-fade-in">
+            <Button
+              onClick={() => setShowAllResources(!showAllResources)}
+              variant="outline"
+              size="lg"
+              className="px-6 sm:px-8 py-3 text-sm sm:text-base font-medium bg-card/80 dark:bg-card/80 backdrop-blur-md border-border hover:border-primary/50 hover:bg-primary/10 dark:hover:bg-primary/10 transition-all duration-300 transform hover:scale-105 group"
+            >
+              {showAllResources ? (
+                <>
+                  <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 mr-2 group-hover:rotate-180 transition-transform duration-300" />
+                  Show Less
+                </>
+              ) : (
+                <>
+                  <BookOpen className="h-4 w-4 sm:h-5 sm:w-5 mr-2 group-hover:scale-110 transition-transform duration-300" />
+                  View All Resources ({filteredResources.length})
+                </>
+              )}
+            </Button>
+          </div>
+        )}
+
         {filteredResources.length === 0 && (
           <div className="text-center py-8 sm:py-12 animate-fade-in">
             <div className="bg-card/50 dark:bg-card/30 backdrop-blur-md rounded-xl p-8 border border-border">
