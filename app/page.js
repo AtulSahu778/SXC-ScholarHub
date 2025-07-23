@@ -268,6 +268,10 @@ export default function App() {
     setFilteredResources(filtered)
   }
 
+  // Compute displayed resources based on showAllResources state
+  const displayedResources = showAllResources ? filteredResources : filteredResources.slice(0, 5)
+  const hasMoreResources = filteredResources.length > 5
+
   const handleLogin = async (e) => {
     e.preventDefault()
     if (!isClient || !mounted) return
