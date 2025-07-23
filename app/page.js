@@ -20,6 +20,8 @@ import { useSafeLocalStorage } from '@/hooks/useSafeLocalStorage'
 import { useIsClient, useIsMobile, useSafeAsync } from '@/hooks/useClientSafe'
 import { DashboardErrorBoundary } from '@/components/DashboardErrorBoundary'
 
+import Head from 'next/head';
+
 export default function App() {
   // Client-side safety hooks
   const isClient = useIsClient()
@@ -723,7 +725,12 @@ export default function App() {
   }, [user, isClient, mounted])
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-background dark:to-card transition-colors duration-300">
+    <>
+      <Head>
+        <title>SXC ScholarHub</title>
+        <link rel="icon" href="/sxc-logofinal.png" type="image/png" />
+      </Head>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-background dark:to-card transition-colors duration-300">
       {/* Enhanced Responsive Header */}
       <header className="bg-white/80 dark:bg-card/80 backdrop-blur-md shadow-sm border-b border-border sticky top-0 z-30 transition-all duration-300">
         <div className="container mx-auto px-3 sm:px-4 lg:px-6 xl:px-8 py-3 lg:py-4">
@@ -1962,5 +1969,6 @@ export default function App() {
         </div>
       </footer>
     </div>
+    </>
   )
 }
