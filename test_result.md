@@ -784,6 +784,66 @@ test_plan:
   test_all: true
   test_priority: "high_first"
 
+  - task: "Resource Cards Homepage Limit - Limit to 5 Cards"
+    implemented: true
+    working: true
+    file: "app/page.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "✅ Successfully implemented resource cards limit functionality. Homepage now displays exactly 5 resource cards initially, with displayedResources computed from filteredResources.slice(0, 5). Added showAllResources state for toggle functionality."
+
+  - task: "View All Resources Button - Show All Available Resources"
+    implemented: true
+    working: true
+    file: "app/page.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "✅ Successfully implemented 'View All Resources (9)' button that appears when hasMoreResources is true (>5 resources). Button shows total resource count dynamically and expands to show all filtered resources when clicked."
+
+  - task: "Show Less Button - Return to Limited View"
+    implemented: true
+    working: true
+    file: "app/page.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "✅ Successfully implemented 'Show Less' button that appears after clicking 'View All'. Button toggles showAllResources back to false, returning to the limited 5-resource view with smooth UX."
+
+  - task: "Responsive Layout Maintenance - Grid Layout Consistency"
+    implemented: true
+    working: true
+    file: "app/page.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "✅ Successfully maintained responsive grid layout (1 col mobile, 2 col tablet, 3 col desktop) in both limited and expanded views. Layout remains consistent and responsive across all screen sizes."
+
+  - task: "Filter Integration - Reset to Limited View on Filter Changes"
+    implemented: true
+    working: true
+    file: "app/page.js"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "✅ Successfully integrated with existing filter system. When users apply filters (search, department, year, type, semester), the view automatically resets to limited view (showAllResources = false) for better UX."
+
 agent_communication:
   - agent: "testing"
     message: "Comprehensive backend API testing completed successfully. All 17 original backend tasks tested and working perfectly. 20 test cases executed with 100% pass rate. The SXC ScholarHub backend API is fully functional with proper authentication, resource management, search/filter capabilities, database operations, and API responses. No critical issues found. Ready for production use."
