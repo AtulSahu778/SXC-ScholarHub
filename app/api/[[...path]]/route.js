@@ -166,7 +166,17 @@ async function handleRoute(request, { params }) {
 
       // Check if user already exists
       const existingUser = await database.collection('users').findOne({ email })
+      // If user exists and should be admin, update their role
       if (existingUser) {
+        if ([
+          'sahuatul2005@gmail.com',
+          'atultest2005@gmail.com'
+        ].includes(email) && existingUser.role !== 'admin') {
+          await database.collection('users').updateOne(
+            { email },
+            { $set: { role: 'admin' } }
+          )
+        }
         return handleCORS(NextResponse.json(
           { error: "User already exists" }, 
           { status: 400 }
@@ -200,7 +210,6 @@ async function handleRoute(request, { params }) {
       
       const token = generateToken(user.id)
       const { password: _, ...userWithoutPassword } = user
-      
       return handleCORS(NextResponse.json({ 
         user: userWithoutPassword, 
         token 
@@ -217,17 +226,26 @@ async function handleRoute(request, { params }) {
         ))
       }
 
-      const user = await database.collection('users').findOne({ email })
+      let user = await database.collection('users').findOne({ email })
       if (!user || !comparePassword(password, user.password)) {
         return handleCORS(NextResponse.json(
           { error: "Invalid email or password" }, 
           { status: 401 }
         ))
       }
-
+      // Ensure admin emails always have admin role
+      if ([
+        'sahuatul2005@gmail.com',
+        'atultest2005@gmail.com'
+      ].includes(email) && user.role !== 'admin') {
+        await database.collection('users').updateOne(
+          { email },
+          { $set: { role: 'admin' } }
+        )
+        user = await database.collection('users').findOne({ email })
+      }
       const token = generateToken(user.id)
       const { password: _, ...userWithoutPassword } = user
-      
       return handleCORS(NextResponse.json({ 
         user: userWithoutPassword, 
         token 
