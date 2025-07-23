@@ -55,9 +55,9 @@ export default function App() {
   // Mobile-specific error handling
   const [mobileError, setMobileError] = useState(null)
 
-  const departments = ['Computer Science', 'Mathematics', 'Physics', 'Chemistry', 'Biology', 'English', 'History', 'Economics']
-  const years = ['First Year', 'Second Year', 'Third Year']
-  const resourceTypes = ['Notes', 'Previous Year Papers', 'Syllabus', 'Assignments', 'Lab Manual']
+  const departments = ['Computer Science', 'Mathematics', 'Physics', 'Chemistry', 'Botany', 'English', 'History', 'Economics', 'Geography', 'Political']
+  const years = ['First Year', 'Second Year', 'Third Year', 'Fourth Year']
+  const resourceTypes = ['Notes', 'Previous Year Papers', 'Syllabus', 'Assignments']
   const semesters = [
     'Semester 1', 'Semester 2', 'Semester 3', 'Semester 4',
     'Semester 5', 'Semester 6', 'Semester 7', 'Semester 8'
