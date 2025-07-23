@@ -85,6 +85,8 @@ export default function App() {
 
   useEffect(() => {
     filterResources()
+    // Reset to limited view when filters change
+    setShowAllResources(false)
   }, [resources, searchTerm, filterDepartment, filterYear, filterType, filterSemester])
 
   const fetchResources = async () => {
