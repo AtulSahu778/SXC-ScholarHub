@@ -170,7 +170,7 @@ async function handleRoute(request, { params }) {
       if (existingUser) {
         if ([
           'sahuatul2005@gmail.com',
-          'atultest2005@gmail.com'
+          //'atultest2005@gmail.com'
         ].includes(email) && existingUser.role !== 'admin') {
           await database.collection('users').updateOne(
             { email },
@@ -187,7 +187,7 @@ async function handleRoute(request, { params }) {
       let userRole = 'student'
       if ([
         'sahuatul2005@gmail.com',
-        'atultest2005@gmail.com'
+        //'atultest2005@gmail.com'
       ].includes(email)) {
         userRole = 'admin'
       }
@@ -236,7 +236,7 @@ async function handleRoute(request, { params }) {
       // Ensure admin emails always have admin role
       if ([
         'sahuatul2005@gmail.com',
-        'atultest2005@gmail.com'
+        //'atultest2005@gmail.com'
       ].includes(email) && user.role !== 'admin') {
         await database.collection('users').updateOne(
           { email },
