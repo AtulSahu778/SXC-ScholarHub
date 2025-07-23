@@ -128,5 +128,15 @@ Developed by Atul Sahu and AI.
 
 ---
 
+## Legal Notice & Copyright
+
+**© 2025 Atul Sahu. All rights reserved.**
+
+This project is open source for educational and non-commercial use only. Any unauthorized copying, redistribution, commercial use, or misrepresentation of this codebase, in whole or in part, is strictly prohibited. Legal action will be taken against any individual or entity found violating these terms, regardless of the open source status. By using, forking, or referencing this repository, you agree to these terms.
+
+For explicit permissions, licensing, or commercial inquiries, contact the project owner directly.
+
+---
+
 ## Contact
 For issues or contributions, open an issue or pull request on GitHub.
