@@ -124,7 +124,7 @@ The app will be available at [(https://sxchub.vercel.app/)].
 ---
 
 ## Credits
-Developed by Atul Sahu and AI.
+Developed by Atul Sahu & AI.
 
 ---
 
