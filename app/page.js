@@ -1365,7 +1365,7 @@ export default function App() {
 
         {/* Enhanced Resources Grid */}
         <div ref={resourcesRef} className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {filteredResources.map((resource) => (
+          {displayedResources.map((resource) => (
             <Card 
               key={resource.id} 
               className="hover:shadow-lg dark:hover:shadow-2xl dark:hover:shadow-primary/10 transition-all duration-300 transform hover:scale-[1.02] bg-card/80 dark:bg-card/80 backdrop-blur-md border-border hover:border-primary/50 group"
