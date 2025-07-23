@@ -53,6 +53,7 @@ export default function App() {
   const [dashboardData, setDashboardData] = useState(null)
   const [bookmarkedResources, setBookmarkedResources] = useState(new Set())
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [showAllResources, setShowAllResources] = useState(false)
   
   // Mobile-specific error handling
   const [mobileError, setMobileError] = useState(null)
