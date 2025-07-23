@@ -53,6 +53,7 @@ export default function App() {
   const [dashboardData, setDashboardData] = useState(null)
   const [bookmarkedResources, setBookmarkedResources] = useState(new Set())
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [showAllResources, setShowAllResources] = useState(false)
   
   // Mobile-specific error handling
   const [mobileError, setMobileError] = useState(null)
@@ -84,6 +85,8 @@ export default function App() {
 
   useEffect(() => {
     filterResources()
+    // Reset to limited view when filters change
+    setShowAllResources(false)
   }, [resources, searchTerm, filterDepartment, filterYear, filterType, filterSemester])
 
   const fetchResources = async () => {
@@ -266,6 +269,10 @@ export default function App() {
     })
     setFilteredResources(filtered)
   }
+
+  // Compute displayed resources based on showAllResources state
+  const displayedResources = showAllResources ? filteredResources : filteredResources.slice(0, 5)
+  const hasMoreResources = filteredResources.length > 5
 
   const handleLogin = async (e) => {
     e.preventDefault()
@@ -1360,7 +1367,7 @@ export default function App() {
 
         {/* Enhanced Resources Grid */}
         <div ref={resourcesRef} className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {filteredResources.map((resource) => (
+          {displayedResources.map((resource) => (
             <Card 
               key={resource.id} 
               className="hover:shadow-lg dark:hover:shadow-2xl dark:hover:shadow-primary/10 transition-all duration-300 transform hover:scale-[1.02] bg-card/80 dark:bg-card/80 backdrop-blur-md border-border hover:border-primary/50 group"
@@ -1472,6 +1479,30 @@ export default function App() {
             </Card>
           ))}
         </div>
+
+        {/* View All / Show Less Button */}
+        {hasMoreResources && (
+          <div className="flex justify-center mt-8 sm:mt-10 lg:mt-12 animate-fade-in">
+            <Button
+              onClick={() => setShowAllResources(!showAllResources)}
+              variant="outline"
+              size="lg"
+              className="px-6 sm:px-8 py-3 text-sm sm:text-base font-medium bg-card/80 dark:bg-card/80 backdrop-blur-md border-border hover:border-primary/50 hover:bg-primary/10 dark:hover:bg-primary/10 transition-all duration-300 transform hover:scale-105 group"
+            >
+              {showAllResources ? (
+                <>
+                  <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 mr-2 group-hover:rotate-180 transition-transform duration-300" />
+                  Show Less
+                </>
+              ) : (
+                <>
+                  <BookOpen className="h-4 w-4 sm:h-5 sm:w-5 mr-2 group-hover:scale-110 transition-transform duration-300" />
+                  View All Resources ({filteredResources.length})
+                </>
+              )}
+            </Button>
+          </div>
+        )}
 
         {filteredResources.length === 0 && (
           <div className="text-center py-8 sm:py-12 animate-fade-in">
