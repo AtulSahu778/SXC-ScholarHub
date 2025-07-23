@@ -11,7 +11,7 @@ import sys
 from datetime import datetime
 
 # Configuration
-BASE_URL = "https://753834e2-31a8-4119-a0c0-04a384a471b4.preview.emergentagent.ai/api"
+BASE_URL = "http://localhost:3000/api"
 ADMIN_EMAIL = "sahuatul2005@gmail.com"
 ADMIN_PASSWORD = "admin123"
 
