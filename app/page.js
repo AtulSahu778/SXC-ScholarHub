@@ -58,7 +58,7 @@ export default function App() {
   const [mobileError, setMobileError] = useState(null)
 
   const departments = ['Computer Science', 'Mathematics', 'Physics', 'Chemistry', 'Botany', 'English', 'History', 'Economics', 'Geography', 'Political']
-  const years = ['All Years','First Year', 'Second Year', 'Third Year', 'Fourth Year']
+  const years = ['First Year', 'Second Year', 'Third Year', 'Fourth Year']
   const resourceTypes = ['Notes', 'Previous Year Papers', 'Syllabus', 'Assignments']
   const semesters = [
     'Semester 1', 'Semester 2', 'Semester 3', 'Semester 4',

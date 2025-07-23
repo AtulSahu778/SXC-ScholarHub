@@ -173,9 +173,12 @@ async function handleRoute(request, { params }) {
         ))
       }
 
-      // Determine user role - only your specific email gets admin role
+      // Determine user role - these specific emails get admin role
       let userRole = 'student'
-      if (email === 'sahuatul2005@gmail.com' && email === 'atultest2005@gmail.com') {
+      if ([
+        'sahuatul2005@gmail.com',
+        'atultest2005@gmail.com'
+      ].includes(email)) {
         userRole = 'admin'
       }
 
