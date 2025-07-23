@@ -407,19 +407,7 @@ export default function App() {
     const gdriveLink = rawGdriveLink?.replace(/^@+/, ''); // Remove leading @
 
     const isAdmin = user && user.role === 'admin';
-    const requiredFields = [
-      formData.get('title'),
-      formData.get('subject'),
-      formData.get('department'),
-      formData.get('year'),
-      formData.get('semester'),
-      formData.get('type')
-    ];
-    if (!isAdmin && requiredFields.some(val => !val || val === '' || val === 'all')) {
-      setAlert({ type: 'error', message: 'Please fill in all required fields.' });
-      setLoading(false);
-      return;
-    }
+    // No required fields check for upload; allow partial/optional fields
 
     const hasFile = file && file.name; // Only true if a file is actually selected
 

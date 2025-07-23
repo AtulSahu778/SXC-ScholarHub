@@ -320,12 +320,7 @@ async function handleRoute(request, { params }) {
         ));
       }
       const { title, department, year, type, fileContent, gdriveLink } = resourceData;
-      if (!title || !department || !year || !type) {
-        return handleCORS(NextResponse.json(
-          { error: "Required fields are missing" }, 
-          { status: 400 }
-        ));
-      }
+      // Only require at least one of fileContent or gdriveLink
       if (!fileContent && !gdriveLink) {
         return handleCORS(NextResponse.json(
           { error: "Either a file or a Google Drive link is required" },
