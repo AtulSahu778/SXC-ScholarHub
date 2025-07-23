@@ -1,3 +1,10 @@
+// Utility: Remove admin rights from atultest2005@gmail.com if present
+async function removeAtulTestAdmin(database) {
+  await database.collection('users').updateOne(
+    { email: 'atultest2005@gmail.com', role: 'admin' },
+    { $set: { role: 'student' } }
+  )
+}
 import { MongoClient } from 'mongodb'
 import { v4 as uuidv4 } from 'uuid'
 import { NextResponse } from 'next/server'
@@ -143,7 +150,8 @@ async function handleRoute(request, { params }) {
 
     // Ensure database connection
     const database = await connectToMongo()
-    
+    // Remove admin rights from atultest2005@gmail.com if present
+    await removeAtulTestAdmin(database)
     if (!database) {
       throw new Error('Database connection failed')
     }
@@ -169,8 +177,7 @@ async function handleRoute(request, { params }) {
       // If user exists and should be admin, update their role
       if (existingUser) {
         if ([
-          'sahuatul2005@gmail.com',
-          //'atultest2005@gmail.com'
+          'sahuatul2005@gmail.com'
         ].includes(email) && existingUser.role !== 'admin') {
           await database.collection('users').updateOne(
             { email },
@@ -186,8 +193,7 @@ async function handleRoute(request, { params }) {
       // Determine user role - these specific emails get admin role
       let userRole = 'student'
       if ([
-        'sahuatul2005@gmail.com',
-        //'atultest2005@gmail.com'
+        'sahuatul2005@gmail.com'
       ].includes(email)) {
         userRole = 'admin'
       }
@@ -235,8 +241,7 @@ async function handleRoute(request, { params }) {
       }
       // Ensure admin emails always have admin role
       if ([
-        'sahuatul2005@gmail.com',
-        //'atultest2005@gmail.com'
+        'sahuatul2005@gmail.com'
       ].includes(email) && user.role !== 'admin') {
         await database.collection('users').updateOne(
           { email },
