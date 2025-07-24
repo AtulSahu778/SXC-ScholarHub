@@ -366,10 +366,29 @@ async function handleRoute(request, { params }) {
         const base64 = fileContent.split(',')[1];
         fileBuffer = Buffer.from(base64, 'base64');
       }
+      // Always set fileName and fileType for file uploads
+      let fileName = resourceData.fileName;
+      let fileType = resourceData.fileType;
+      if (fileContent) {
+        // If missing, try to infer from data URL
+        if (!fileName && typeof fileContent === 'string') {
+          fileName = 'resource.pdf';
+        }
+        if (!fileType && typeof fileContent === 'string') {
+          const match = fileContent.match(/^data:([^;]+);/);
+          fileType = match ? match[1] : 'application/pdf';
+        }
+      } else {
+        // For Google Drive links, set to null
+        fileName = '';
+        fileType = '';
+      }
       const resource = {
         id: uuidv4(),
         ...resourceData,
         fileContent: fileBuffer || fileContent, // Store as Buffer if possible
+        fileName,
+        fileType,
         downloadCount: 0, // Track download count for trending
         uploadedBy: user.id,
         uploadedByName: user.name,
