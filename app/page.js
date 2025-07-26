@@ -818,7 +818,7 @@ export default function App() {
                         height={32}
                         className="rounded-full" 
                       />
-                      <span>SXC ScholarHub</span>
+                      <span>ScholarHub</span>
                     </SheetTitle>
                     <SheetDescription>
                       Academic Resources Platform
