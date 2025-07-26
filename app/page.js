@@ -1967,7 +1967,7 @@ export default function App() {
               <Instagram className="h-4 w-4" /> ofc_atul
             </a>
             <a 
-              href="https://twitter.com/Ofc-atul" 
+              href="https://x.com/Ofc_atul" 
               target="_blank" 
               rel="noopener noreferrer" 
               title="Twitter" 
