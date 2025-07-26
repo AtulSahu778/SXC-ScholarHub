@@ -60,7 +60,7 @@ class AuthDashboardTester:
             response = self.session.get(f"{BASE_URL}/")
             if response.status_code == 200:
                 data = response.json()
-                if "SXC ScholarHub API" in data.get("message", ""):
+                if "lScholarHub API" in data.get("message", ""):
                     self.log_test("API Connectivity", True, f"API is running: {data['message']}")
                     return True
                 else:

@@ -1,6 +1,6 @@
 # SXC ScholarHub
 
-SXC ScholarHub is a full-stack web application for St. Xavier's College, designed to centralize academic resources such as study materials, previous year papers, and more. It features robust authentication, role-based access (admin/student), resource upload/download, advanced search/filtering, a Smart Academic Dashboard, dark theme, bookmark system, download tracking, and enhanced accessibility.
+SXC ScholarHub is a full-stack web application made for St. Xavier's College, designed to centralize academic resources such as study materials, previous year papers, and more. It features robust authentication, role-based access (admin/student), resource upload/download, advanced search/filtering, a Smart Academic Dashboard, dark theme, bookmark system, download tracking, and enhanced accessibility.
 
 ---
 

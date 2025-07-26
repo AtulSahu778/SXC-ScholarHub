@@ -722,7 +722,7 @@ export default function App() {
   return (
     <>
       <Head>
-        <title>SXC ScholarHub</title>
+        <title>ScholarHub</title>
         <link rel="icon" href="/sxc-logofinal.png" type="image/png" />
       </Head>
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-background dark:to-card transition-colors duration-300">
@@ -744,10 +744,10 @@ export default function App() {
               </div>
               <div className="hidden xs:block">
                 <h1 className="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-bold text-gray-900 dark:text-foreground gradient-text">
-                  SXC ScholarHub
+                  ScholarHub
                 </h1>
                 <p className="text-xs sm:text-sm lg:text-base text-gray-600 dark:text-muted-foreground">
-                  St. Xavier's College Academic Resources
+                  Centralized Academic Resources
                 </p>
               </div>
             </div>
@@ -1659,7 +1659,7 @@ export default function App() {
         <DialogContent className="w-[95vw] max-w-[95vw] sm:max-w-[400px] p-2 sm:p-6 bg-card/95 dark:bg-card/95 backdrop-blur-md border-border">
           <DialogHeader>
             <DialogTitle className="text-base sm:text-lg text-card-foreground">
-              {isLogin ? 'Login' : 'Register'} to SXC ScholarHub
+              {isLogin ? 'Login' : 'Register'} to ScholarHub
             </DialogTitle>
             <DialogDescription className="text-xs sm:text-sm text-muted-foreground">
               {isLogin ? 'Sign in to your account' : 'Create a new account'}

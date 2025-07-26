@@ -4,7 +4,7 @@ import Head from 'next/head'
 
 export const metadata = {
   title: 'ScholarHub',
-  description: 'St. Xavier\'s College Academic Resources Hub - Your one-stop platform for study materials, previous year papers, and academic assistance.',
+  description: 'Centralized Academic Resources Hub - Your one-stop platform for study materials, previous year papers, and academic assistance.',
 }
 
 export default function RootLayout({ children }) {
