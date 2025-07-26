@@ -1,7 +1,7 @@
-# 🎨 SXC ScholarHub Dark Theme Design System
+# 🎨 ScholarHub Dark Theme Design System
 
 ## Overview
-A comprehensive, professionally designed dark theme system for the SXC ScholarHub edtech application, featuring deep blues, charcoal blacks, and beautiful gradients with accessibility-first design principles.
+A comprehensive, professionally designed dark theme system for the ScholarHub edtech application, featuring deep blues, charcoal blacks, and beautiful gradients with accessibility-first design principles.
 
 ## 🎯 Design Philosophy
 - **Modern & Professional**: Clean, premium aesthetic for academic environments
@@ -402,4 +402,4 @@ For detailed component usage examples and props documentation, refer to the indi
 
 ---
 
-Built with ❤️ for SXC ScholarHub - Empowering Academic Excellence Through Design
+Built with ❤️ for ScholarHub - Empowering Academic Excellence Through Design

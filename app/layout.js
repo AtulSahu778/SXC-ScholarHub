@@ -3,7 +3,7 @@ import { ThemeProvider } from '@/components/theme-provider'
 import Head from 'next/head'
 
 export const metadata = {
-  title: 'SXC ScholarHub',
+  title: 'ScholarHub',
   description: 'St. Xavier\'s College Academic Resources Hub - Your one-stop platform for study materials, previous year papers, and academic assistance.',
 }
 
