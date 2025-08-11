@@ -724,6 +724,7 @@ export default function App() {
       <Head>
         <title>ScholarHub</title>
         <link rel="icon" href="/sxc-logofinal.png" type="image/png" />
+        <link rel="icon" href="/favicon.ico" type="image/x-icon" />
       </Head>
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-background dark:to-card transition-colors duration-300">
       {/* Enhanced Responsive Header */}
